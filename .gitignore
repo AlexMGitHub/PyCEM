@@ -1,0 +1,15 @@
+# Package and IDE artifacts
+*.pyc
+*.egg*
+.vscode/
+
+# Testing related
+htmlcov/
+.coverage
+
+# C artifacts
+*.o
+*.so
+
+# Jupyter Notebook Artifacts
+.ipynb_checkpoints
