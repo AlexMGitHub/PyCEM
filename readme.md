@@ -3,12 +3,14 @@
 ## Overview
 
 
-### Motivation for writing C Extensions
-The Python interpreter can be extended with new modules written in the C programming language.  This means that functions written in C and compiled as a shared library can be called in Python code as if they were written natively in Python.
+### Motivation for writing C Library
+Functions written in C and compiled as a shared library can be called in Python code as if they were written natively in Python.  One method of doing so is to use the `ctypes` foreign function library.
 
 Python has two major performance limitations: one, it is an interpreted language and as such will always be slower than a compiled language.  Two, Python has the so-called "Global Interpreter Lock" (GIL) which prevents truly parallel multi-threading.  Python's `threading` module is limited to concurrent multi-threading, meaning that only one thread can execute Python code at once because each thread must acquire the GIL before executing code.  Parallel computation can be achieved by using the `multiprocessing` library, but subprocesses have more overhead than threads and do not benefit from shared memory.
 
-Both of these performance limitations can be bypassed by writing C extensions.  C is a compiled language, and is well-known to be highly optimized and fast to execute.  In addition, by using a C extension the GIL can be bypassed to allow for true parallel multi-threading.  The CEM solver will be performing many matrix operations which are CPU-intensive and can benefit from parallelism.  Writing C extensions to execute these matrix operations will significantly improve the performance of the solver.
+Both of these performance limitations can be bypassed by writing C code.  C is a compiled language, and is well-known to be highly optimized and fast to execute.  In addition, by using an external C library the GIL can be bypassed to allow for true parallel multi-threading.  The CEM solver will be running many CPU-intensive routines and can benefit from parallelism.  Writing C code to execute these routines will significantly improve the performance of the solver.
+
+## Kivy
 
 ### Doxygen
 
@@ -42,3 +44,6 @@ https://dbader.org/blog/python-ctypes-tutorial
 * Matrices
 https://cse.buffalo.edu/faculty/miller/Courses/CSE633/Ortega-Fall-2012-CSE633.pdf
 https://cse.buffalo.edu/faculty/miller/Courses/CSE702/Prithvisagar-Rao-Fall-2020.pdf
+
+* FDTD
+https://eecs.wsu.edu/~schneidj/ufdtd/
