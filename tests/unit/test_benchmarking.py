@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 # Local application/library specific imports
-from pycem.clib_wrapper import CLib_Wrapper
+from pycem.benchmarking import CLib_Wrapper
 
 
 # %% Tests

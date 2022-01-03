@@ -17,7 +17,7 @@ class CLib_Wrapper:
     def __init__(self):
         """Initialize C library and argument data types of its functions."""
         root = get_project_root()
-        lib_path = root / 'src/C/lib/libmatrix_mult.so'
+        lib_path = root / 'src/C/lib/libbenchmarking.so'
         self.c_lib = ctypes.CDLL(lib_path)
 
         # Matrix multiplication function

@@ -1,13 +1,13 @@
 ###############################################################################
-#	Matrix Multiplication Makefile									          #
+#	Benchmarking Makefile			         						          #
 #																	          #
-#	Project:	CEM Solver  										          #
+#	Project:	PyCEM        										          #
 #	Date:		12/11/2021											          #
 #																	          #
 ###############################################################################
 
 ## Library filename
-LIBFILE = libmatrix_mult.so
+LIBFILE = libbenchmarking.so
 
 ## Compiler
 CC=gcc					# GNU C Compiler
@@ -16,7 +16,7 @@ CC=gcc					# GNU C Compiler
 SRCDIR = ./src
 OBJDIR = ./src/obj
 INCDIR = ./inc
-# BINDIR = ./bin
+BINDIR = ./bin
 LIBDIR = ./lib
 
 ## Compiler flags
@@ -27,18 +27,18 @@ CFLAGS += -Wextra		# Enables additional warnings
 CFLAGS += -Wconversion	# Warn for implicit conversions that may alter a value
 CFLAGS += -Werror		# Make all warnings into errors
 CFLAGS += -g			# GCC compiler core dump: "ulimit -c unlimited" if fail
-CFLAGS += -O3
+CFLAGS += -O3			# Enable many optimizations
 
 ## Define libraries
-# LIBS =
+LIBS = -lpthread		# Necessary when including pthread.h
 # LIBS += -lm			# Math library, only necessary if including math.h
 
 ## Define source, dependencies (headers), and object files
 ## Then append directory to the filenames
-_SRC = matrix_mult.c
+_SRC = benchmarking.c
 SRC = $(_SRC:%=$(SRCDIR)/%)
 
-_DEPS = matrix_mult.h
+_DEPS = benchmarking.h
 DEPS = $(_DEPS:%=$(INCDIR)/%)
 
 _OBJ = $(_SRC:.c=.o)
@@ -49,7 +49,7 @@ all: $(LIBDIR)/$(LIBFILE)
 
 ## Create objects
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
-	$(CC) -c $< $(CFLAGS) -o $(OBJ)
+	$(CC) -c $< $(CFLAGS) -o $(OBJ) $(LIBS)
 
 ## Create shared library
 $(LIBDIR)/$(LIBFILE): $(OBJ)
