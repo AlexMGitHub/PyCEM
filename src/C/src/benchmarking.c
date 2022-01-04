@@ -22,6 +22,24 @@ void mat_mult(int outer_dim1, int outer_dim2, int inner_dim,
     }
 }
 
+void mat_mult_ikj(int outer_dim1, int outer_dim2, int inner_dim,
+                  double matrix1[outer_dim1][inner_dim],
+                  double matrix2[inner_dim][outer_dim2],
+                  double matrix3[outer_dim1][outer_dim2])
+{
+
+    for (int i = 0; i < outer_dim1; i++)
+    {
+        for (int k = 0; k < inner_dim; k++)
+        {
+            for (int j = 0; j < outer_dim2; j++)
+            {
+                matrix3[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+}
+
 void print_mat(int dim1, int dim2, double matrix[dim1][dim2])
 {
     printf("[[");
