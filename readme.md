@@ -35,6 +35,7 @@ https://stackoverflow.com/questions/14808908/pointer-to-2d-arrays-in-c
 
 * Python
 https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int_
+https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
 
 * C Extension
 https://stackoverflow.com/questions/43148188/python-2d-array-i-c-using-ctypes
@@ -52,3 +53,9 @@ https://cse.buffalo.edu/faculty/miller/Courses/CSE702/Prithvisagar-Rao-Fall-2020
 
 * FDTD
 https://eecs.wsu.edu/~schneidj/ufdtd/
+
+* KIVY
+https://stackoverflow.com/questions/27643628/kivy-interpolation-on-canvas
+https://stackoverflow.com/questions/41317215/how-do-i-move-a-kivy-widgets-canvas-items-if-the-items-are-defined-in-py-and-n
+https://old.reddit.com/r/kivy/comments/ryfue4/kivy_graphics_cant_handle_thousands_of_rectangles/
+https://kivy.org/doc/stable/api-kivy.graphics.texture.html
