@@ -53,9 +53,12 @@ https://cse.buffalo.edu/faculty/miller/Courses/CSE702/Prithvisagar-Rao-Fall-2020
 
 * FDTD
 https://eecs.wsu.edu/~schneidj/ufdtd/
+https://github.com/john-b-schneider/uFDTD
+
 
 * KIVY
 https://stackoverflow.com/questions/27643628/kivy-interpolation-on-canvas
 https://stackoverflow.com/questions/41317215/how-do-i-move-a-kivy-widgets-canvas-items-if-the-items-are-defined-in-py-and-n
 https://old.reddit.com/r/kivy/comments/ryfue4/kivy_graphics_cant_handle_thousands_of_rectangles/
 https://kivy.org/doc/stable/api-kivy.graphics.texture.html
+https://stackoverflow.com/questions/31254796/kivy-check-if-a-function-is-already-scheduled

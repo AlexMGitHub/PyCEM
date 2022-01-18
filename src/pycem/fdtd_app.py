@@ -10,7 +10,6 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import Rectangle
 from kivy.graphics.texture import Texture
-from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
@@ -21,7 +20,7 @@ import numpy as np
 
 # %% Classes
 class FDTDGrid(Widget):
-    rect = ObjectProperty(None)
+    """Class representing the FDTD simulation as an animation."""
 
     def __init__(self, sizex, sizey, scale, frame_rate, **kwargs):
         """Init widget with a texture used to create the FDTD animation."""
@@ -55,11 +54,13 @@ class FDTDGrid(Widget):
 
     def run_sim(self, val, *args):
         """Button callback to start/stop FDTD animation."""
+        self.reposition_screen(self)
         if val:
-            self.event = Clock.schedule_interval(self.update,
-                                                 1.0/self.frame_rate)
+            if self.event not in Clock.get_events():
+                self.event = Clock.schedule_interval(self.update,
+                                                     1.0/self.frame_rate)
         else:
-            if self.event:
+            if self.event in Clock.get_events():
                 self.event.cancel()
 
     def reposition_screen(self, wid, *args):
@@ -69,6 +70,7 @@ class FDTDGrid(Widget):
 
 
 class MyApp(App):
+    """Creates PyCEM GUI."""
 
     def __init__(self, sizex, sizey, scale, frame_rate):
         """Accept user parameters for FDTD app."""
@@ -84,7 +86,8 @@ class MyApp(App):
         screenx = self.sizex * self.scale
         screeny = self.sizey * self.scale
         screen = FDTDGrid(self.sizex, self.sizey, self.scale, self.frame_rate,
-                          size_hint=(None, None), size=(640, 640))
+                          size_hint=(None, None), size=(screenx, screeny))
+
         # Place screen in box layout with blank spacer widgets
         screen_layout = BoxLayout(size_hint=(1, None), height=screeny)
         screen_spacer_left = Widget(size_hint=(0.5, 1))
@@ -93,16 +96,18 @@ class MyApp(App):
         screen_layout.add_widget(screen)
         screen_layout.add_widget(screen_spacer_right)
         # Place control buttons below screen in box layout with spacer widgets
-        btn_height = 50
+        btn_width, btn_height = 150, 50
         btn_layout = BoxLayout(size_hint=(1, None), height=btn_height)
         btn_spacer_left = Widget(size_hint=(0.5, 1))
         btn_spacer_right = Widget(size_hint=(0.5, 1))
         btn_startsim = Button(text='Start Simulation',
                               on_press=partial(screen.run_sim, True),
-                              size_hint=(0.25, 1))
+                              size_hint=(None, None),
+                              size=(btn_width, btn_height))
         btn_stopsim = Button(text='Stop Simulation',
                              on_press=partial(screen.run_sim, False),
-                             size_hint=(0.25, 1))
+                             size_hint=(None, None),
+                             size=(btn_width, btn_height))
         btn_layout.add_widget(btn_spacer_left)
         btn_layout.add_widget(btn_startsim)
         btn_layout.add_widget(btn_stopsim)
@@ -115,6 +120,7 @@ class MyApp(App):
         Window.bind(width=screen.reposition_screen)
         # Set initial GUI window size
         Window.size = (int(screenx*1.25), screeny+btn_height)
+        self.title = 'PyCEM'  # App window title
         return root
 
 
