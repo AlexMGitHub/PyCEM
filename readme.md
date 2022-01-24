@@ -32,6 +32,7 @@ http://websites.umich.edu/~eecs381/handouts/CHeaderFileGuidelines.pdf
 https://people.engr.tamu.edu/j-welch/teaching/cstyle.html
 https://stackoverflow.com/questions/63220508/how-can-i-define-a-pointer-to-variable-length-array-vla-in-a-struct-or-equiva
 https://stackoverflow.com/questions/14808908/pointer-to-2d-arrays-in-c
+https://stackoverflow.com/questions/36890624/malloc-a-2d-array-in-c
 
 * Python
 https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int_
