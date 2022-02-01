@@ -13,6 +13,8 @@ from kivy.graphics.texture import Texture
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.slider import Slider
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelHeader
 from kivy.utils import escape_markup
 from kivy.uix.widget import Widget
 from matplotlib import cm
@@ -29,7 +31,7 @@ class FDTDScreen(Widget):
     """Class representing the FDTD simulation as an animation."""
 
     def __init__(self, sizex, sizey, scale, max_time, frame_rate,
-                 progress_label, **kwargs):
+                 progress_label, slider, **kwargs):
         """Init widget with a texture used to create the FDTD animation."""
         super().__init__(**kwargs)
         self.sizex = sizex
@@ -38,6 +40,7 @@ class FDTDScreen(Widget):
         self.max_time = max_time
         self.frame_rate = frame_rate
         self.progress_label = progress_label
+        self.slider = slider
         self.buf_size = sizex * sizey * 3  # RGB 3 bytes per pixel
         self.event = None
         self.clim = (-3, 0)
@@ -122,9 +125,16 @@ class FDTDScreen(Widget):
         self.frame += 1
         if self.frame >= self.max_time:
             self.frame = 0
+        self.slider.value = self.frame
         buf = self.arr_to_rgb(self.arr.Ez[self.frame].T)  # Tranpose of array
         self.texture.blit_buffer(buf)
         self.canvas.ask_update()
+
+    def select_frame(self, wid, *args):
+        """Select current frame of FDTD animation."""
+        if self.sim_complete:
+            self.frame = int(wid.value-1)
+            self.update(self.frame)
 
     def play_animation(self, wid, *args):
         """Button callback to start/stop FDTD animation."""
@@ -133,10 +143,12 @@ class FDTDScreen(Widget):
             if self.event not in Clock.get_events():
                 self.event = Clock.schedule_interval(self.update,
                                                      1.0/self.frame_rate)
-                wid.text = "Pause Animation"
+                wid.background_normal = 'icons/pause.png'
+                wid.background_down = 'icons/pause_down.png'
             else:
                 self.event.cancel()
-                wid.text = "Play Animation"
+                wid.background_normal = 'icons/play.png'
+                wid.background_down = 'icons/play_down.png'
 
     def reposition_screen(self, wid, *args):
         """Move rectangle containing texture with screen widget."""
@@ -158,55 +170,80 @@ class PyCEM(App):
 
     def build(self):
         """Build FDTD app."""
-        # Add label widgets above screen with spacer widgets
-        lbl_height = 50
-        lbl_layout = BoxLayout(size_hint=(1, None), height=lbl_height)
-        lbl_spacer_left = Widget(size_hint=(0.5, 1))
-        lbl_spacer_right = Widget(size_hint=(0.5, 1))
-        lbl_sim_progress = Label(
-            text='[b]Progress: 0%[/b]', markup=True,
-            font_size='20sp')
-        lbl_layout.add_widget(lbl_spacer_left)
-        lbl_layout.add_widget(lbl_sim_progress)
-        lbl_layout.add_widget(lbl_spacer_right)
-        # Define screen layout containing FDTD animation
+        # Define widget dimensions
         screenx = self.sizex * self.scale
         screeny = self.sizey * self.scale
+        screen_spacer = 50
+        play_width, play_height = 36, 36
+        panel_width = 200
+        console_height = 150
+        # Define widgets used in GUI
+        slider_anim = Slider(min=0, max=self.max_time-1, value=0,
+                             step=1, value_track=True,
+                             value_track_color=[1, 0, 0, 1],
+                             size_hint=(1, None), height=play_height)
+        console = Label(
+            text='[b]Progress: 0%[/b]', markup=True,
+            font_size='20sp', size_hint=(1, None), height=console_height)
         screen = FDTDScreen(self.sizex, self.sizey, self.scale, self.max_time,
-                            self.frame_rate, lbl_sim_progress,
+                            self.frame_rate, console, slider_anim,
                             size_hint=(None, None),
                             size=(screenx, screeny))
-        # Place screen in box layout with blank spacer widgets
-        screen_layout = BoxLayout(size_hint=(1, None), height=screeny)
+        btn_playanim = Button(on_press=screen.play_animation,
+                              size_hint=(None, None),
+                              size=(play_width, play_height))
+        # Place control buttons below screen in box layout
+        slider_anim.bind(value=screen.select_frame)
+        btn_playanim.background_normal = 'icons/play.png'
+        btn_playanim.background_down = 'icons/play_down.png'
+        ctrl_layout = BoxLayout(orientation='horizontal',
+                                size_hint=(None, None),
+                                size=(screenx, play_height))
+        ctrl_layout.add_widget(btn_playanim)
+        ctrl_layout.add_widget(slider_anim)
+        # Add a tabbed panel to the left side of the GUI
+        tp = TabbedPanel(size_hint=(None, 1),
+                         width=panel_width)
+        tp.default_tab_text = 'Simulation'
+        tp.default_tab.background_color = (1, 0, 0, 1)
+        sim_tab = BoxLayout(orientation='vertical')
+        btn_runsim = Button(text='Run Simulation',
+                            on_press=screen.run_sim,
+                            size_hint=(None, None),
+                            size=(150, 50))
+        sim_tab.add_widget(btn_runsim)
+        tp.content = btn_runsim
+        # Add multiline label as bottom console panel
+
+        # Define screen layout containing FDTD animation and control buttons
+        screen_layout = BoxLayout(orientation='vertical', size_hint=(None, 1),
+                                  width=screenx)
+        screen_spacer_top = Widget(size_hint=(1, 0.5))
+        screen_spacer_bot = Widget(size_hint=(1, 0.5))
+        screen_layout.add_widget(screen_spacer_top)
+        screen_layout.add_widget(screen)
+        screen_layout.add_widget(ctrl_layout)
+        screen_layout.add_widget(screen_spacer_bot)
+        # Place screen and controls in box layout with blank spacer widgets
+        anim_layout = BoxLayout(orientation='horizontal')
         screen_spacer_left = Widget(size_hint=(0.5, 1))
         screen_spacer_right = Widget(size_hint=(0.5, 1))
-        screen_layout.add_widget(screen_spacer_left)
-        screen_layout.add_widget(screen)
-        screen_layout.add_widget(screen_spacer_right)
-        # Place control buttons below screen in box layout with spacer widgets
-        btn_width, btn_height = 150, 50
-        btn_layout = BoxLayout(size_hint=(1, None), height=btn_height)
-        btn_spacer_left = Widget(size_hint=(0.5, 1))
-        btn_spacer_right = Widget(size_hint=(0.5, 1))
-        btn_startsim = Button(text='Run Simulation',
-                              on_press=partial(screen.run_sim),
-                              size_hint=(None, None),
-                              size=(btn_width, btn_height))
-        btn_stopsim = Button(text='Play Animation',
-                             on_press=partial(screen.play_animation),
-                             size_hint=(None, None),
-                             size=(btn_width, btn_height))
-        btn_layout.add_widget(btn_spacer_left)
-        btn_layout.add_widget(btn_startsim)
-        btn_layout.add_widget(btn_stopsim)
-        btn_layout.add_widget(btn_spacer_right)
-        # Create root layout and add label, screen, and button layouts
-        root = BoxLayout(orientation='vertical')
-        root.add_widget(lbl_layout)
-        root.add_widget(screen_layout)
-        root.add_widget(btn_layout)
+        anim_layout.add_widget(screen_spacer_left)
+        anim_layout.add_widget(screen_layout)
+        anim_layout.add_widget(screen_spacer_right)
+        # Create root layout
+        root = BoxLayout(orientation='horizontal')
+        right_layout = BoxLayout(
+            orientation='vertical', size_hint=(1, 1))  # (None, None),
+        # size=(screenx+screen_spacer, screeny+play_height))
+        right_layout.add_widget(anim_layout)
+        right_layout.add_widget(console)
+        root.add_widget(tp)
+        root.add_widget(right_layout)
         # Set initial GUI window size
-        Window.size = (int(screenx*1.25), lbl_height+screeny+btn_height)
+        window_width = panel_width + screenx + screen_spacer
+        window_height = console_height+screeny+play_height + screen_spacer
+        Window.size = (window_width, window_height)
         # Bind animation to any changes in GUI window width
         Window.bind(width=screen.reposition_screen)
         self.title = 'PyCEM'  # App window title
