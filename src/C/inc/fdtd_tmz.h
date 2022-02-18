@@ -5,6 +5,16 @@
 #define ARR_SIZE (g->sizeX * g->sizeY)
 #define EzG(TIME, MM, NN) *(g->Ez + (TIME)*ARR_SIZE + (MM)*g->sizeY + (NN))
 
+#define ALLOC_1D(PNTR, NUM, TYPE)                                      \
+    PNTR = (TYPE *)calloc(NUM, sizeof(TYPE));                          \
+    if (!PNTR)                                                         \
+    {                                                                  \
+        perror("ALLOC_1D");                                            \
+        fprintf(stderr,                                                \
+                "Allocation failed for " #PNTR ".  Terminating...\n"); \
+        exit(-1);                                                      \
+    }
+
 /* Constants */
 const double PPW = 20;
 
@@ -33,12 +43,12 @@ struct Grid
 
 /* Function prototypes */
 struct Grid *manual_tmzdemo();
-void tmzdemo(struct Grid *g);
+void rickerTMz2D(struct Grid *g);
 void updateH2d(struct Grid *g);
 void updateE2d(struct Grid *g);
 void *updateHx(struct Grid *g);
 void *updateHy(struct Grid *g);
 void *updateEz(struct Grid *g);
-double ezInc(struct Grid *g, double location);
+double rickerWavelet(struct Grid *g, double location);
 
 #endif

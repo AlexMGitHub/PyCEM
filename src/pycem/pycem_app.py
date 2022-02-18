@@ -22,47 +22,47 @@ import numpy as np
 import numba as nb
 
 # Local application/library specific imports
-from pycem.fdtd import Grid, grid_init
-from pycem.utilities import get_project_root
+from pycem.fdtd import Grid, RickerTMz2D
 
 
 # %% Classes
 class FDTDScreen(Widget):
     """Class representing the FDTD simulation as an animation."""
 
-    def __init__(self, sizex, sizey, scale, max_time, frame_rate,
+    def __init__(self, scale, frame_rate,
                  progress_label, slider, **kwargs):
         """Init widget with a texture used to create the FDTD animation."""
         super().__init__(**kwargs)
-        self.sizex = sizex
-        self.sizey = sizey
-        self.scale = scale
-        self.max_time = max_time
+
         self.frame_rate = frame_rate
         self.progress_label = progress_label
         self.slider = slider
-        self.buf_size = sizex * sizey * 3  # RGB 3 bytes per pixel
+        self.scale = scale
         self.event = None
         self.clim = (-3, 0)
         self.frame = 0
         self.sim_complete = False
         self.rect = None
 
+    def init_sim_params(self):
+        """Initialize parameters related to simulation."""
+        self.sizex = self.g.sizeX
+        self.sizey = self.g.sizeY
+        self.max_time = self.g.max_time
+        self.buf_size = self.sizex * self.sizey * 3  # RGB 3 bytes per pixel
+        self.slider.max = self.max_time - 1
+
     def run_sim(self, *args):
         """Run C code to perform FDTD simulation."""
         if not self.sim_complete:
-            root = get_project_root()
-            lib_path = root / 'src/C/lib/libtmzdemo.so'
-            c_lib = ctypes.CDLL(lib_path)
-            tmzdemo = c_lib.tmzdemo
-            tmzdemo.argtypes = [ctypes.POINTER(Grid)]
-            tmzdemo.restype = None  # C function returns void
             self.g = Grid()
-            self.arr = grid_init(self.g, self.sizex, self.sizey,
-                                 self.max_time)  # Contains Numpy arrays
+            scenario = RickerTMz2D(self.g)
+            self.arr = scenario.arr
+            self.init_sim_params()
             sim_progress = Clock.schedule_interval(self.check_sim_progress,
                                                    1.0/2.0)
-            tmzdemo(self.g)
+            # tmzdemo(self.g)
+            scenario.run_sim()
             sim_progress.cancel()
             self.check_sim_progress(None)
             self.sim_complete = True
@@ -159,13 +159,13 @@ class FDTDScreen(Widget):
 class PyCEM(App):
     """Creates PyCEM GUI."""
 
-    def __init__(self, sizex, sizey, scale, max_time, frame_rate):
+    def __init__(self, scale, frame_rate):
         """Accept user parameters for FDTD app."""
         super().__init__()
-        self.sizex = sizex
-        self.sizey = sizey
+        self.sizex = 100  # Set arbitrary defaults for screen and slider size
+        self.sizey = 100
+        self.max_time = 100
         self.scale = scale
-        self.max_time = max_time
         self.frame_rate = frame_rate
 
     def build(self):
@@ -185,7 +185,7 @@ class PyCEM(App):
         console = Label(
             text='[b]Progress: 0%[/b]', markup=True,
             font_size='20sp', size_hint=(1, None), height=console_height)
-        screen = FDTDScreen(self.sizex, self.sizey, self.scale, self.max_time,
+        screen = FDTDScreen(self.scale,
                             self.frame_rate, console, slider_anim,
                             size_hint=(None, None),
                             size=(screenx, screeny))
@@ -251,4 +251,4 @@ class PyCEM(App):
 
 
 if __name__ == '__main__':
-    PyCEM(101, 81, 4, 300, 30).run()
+    PyCEM(4, 30).run()

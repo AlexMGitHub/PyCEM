@@ -7,7 +7,7 @@
 ###############################################################################
 
 ## Library filename
-LIBFILE = libtmzdemo.so
+LIBFILE = libFDTD_TMz.so
 
 ## Compiler
 CC=gcc					# GNU C Compiler
