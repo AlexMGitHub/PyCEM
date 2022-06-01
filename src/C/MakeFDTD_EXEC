@@ -7,7 +7,7 @@
 ###############################################################################
 
 ## Library filename
-LIBFILE = libFDTD_TMz.so
+LIBFILE = libFDTD_EXE.a
 
 ## Compiler
 CC=gcc					# GNU C Compiler
@@ -21,7 +21,7 @@ LIBDIR = ./lib
 
 ## Compiler flags
 CFLAGS = -I$(INCDIR)	# Look in inc directory for header files
-CFLAGS += -fPIC			# Generate position independent code (for shared lib)
+#CFLAGS += -fpic			# Generate position independent code (for shared lib)
 CFLAGS += -Wall			# Enables warnings for all questionable constructions
 CFLAGS += -Wextra		# Enables additional warnings
 CFLAGS += -Wconversion	# Warn for implicit conversions that may alter a value
@@ -53,7 +53,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 
 ## Create shared library
 $(LIBDIR)/$(LIBFILE): $(OBJ)
-	$(CC) -shared -o $@ $(OBJ)
+	$(CC) -o $@ $(OBJ) -lm
 
 
 ## Indicate phony targets

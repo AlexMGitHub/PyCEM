@@ -10,6 +10,13 @@ htmlcov/
 # C artifacts
 *.o
 *.so
+lib/
 
 # Jupyter Notebook Artifacts
 .ipynb_checkpoints
+
+# Dash artifacts
+cache/
+
+# Webapp Assets
+*.mp4
