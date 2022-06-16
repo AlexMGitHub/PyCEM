@@ -119,13 +119,13 @@ class RickerTMz2D:
         root = get_project_root()
         lib_path = root / 'src/C/lib/libFDTD_TMz.so'
         c_lib = ctypes.CDLL(lib_path)
-        self.scenarioRicker = c_lib.scenarioRicker
-        self.scenarioRicker.argtypes = [ctypes.POINTER(Grid)]
-        self.scenarioRicker.restype = None
+        self.scenario = c_lib.scenarioRicker
+        self.scenario.argtypes = [ctypes.POINTER(Grid)]
+        self.scenario.restype = None
 
     def run_sim(self):
         """Run simulation by calling C foreign function."""
-        self.scenarioRicker(self.g)
+        self.scenario(self.g)
 
 
 class TFSFSource:
@@ -168,26 +168,26 @@ class TFSFSource:
         root = get_project_root()
         lib_path = root / 'src/C/lib/libFDTD_TMz.so'
         c_lib = ctypes.CDLL(lib_path)
-        self.scenarioTFSF = c_lib.scenarioTFSF
-        self.scenarioTFSF.argtypes = [ctypes.POINTER(Grid)]
-        self.scenarioTFSF.restype = None
+        self.scenario = c_lib.scenarioTFSF
+        self.scenario.argtypes = [ctypes.POINTER(Grid)]
+        self.scenario.restype = None
 
     def run_sim(self):
         """Run simulation by calling C foreign function."""
-        self.scenarioTFSF(self.g)
+        self.scenario(self.g)
 
 
 class TFSFPlate:
     """Simulate a TMz 2D FDTD grid with a TF/SF source.
 
-    TFSF source offset by 5 nodes from the edge of the grid.
+    The incident wave strikes a vertical PEC plate.
 
-    Replicates figure 8.6 from John B. Schneider's textbook "Understanding the
+    Replicates figure 8.7 from John B. Schneider's textbook "Understanding the
     Finite-Difference Time-Domain Method."
     """
 
     name = 'TFSFPlate'              # Scenario name
-    image_frame = 50                # Frame to use for scenario image
+    image_frame = 70                # Frame to use for scenario image
     sizeX = 101                     # X size of domain
     sizeY = 81                      # Y size of domain
     max_time = 300                  # Duration of simulation
@@ -210,38 +210,38 @@ class TFSFPlate:
         g.Cdtds = 1.0 / np.sqrt(2.0)    # Courant number
         self.arr = ArrayStorage(g)      # Initialize E and H-field arrays
         self.g = g
-        self.init_funcs()               # Initialize C foreign function
+        self.init_c_funcs()             # Initialize C foreign function
 
-    def init_funcs(self):
+    def init_c_funcs(self):
         """Specify order of C functions used in scenario."""
         root = get_project_root()
         lib_path = root / 'src/C/lib/libFDTD_TMz.so'
         c_lib = ctypes.CDLL(lib_path)
-        self.rickerTMz2D = c_lib.rickerTMz2D
-        self.rickerTMz2D.argtypes = [ctypes.POINTER(Grid)]
-        self.rickerTMz2D.restype = None
+        self.scenario = c_lib.scenarioPlate
+        self.scenario.argtypes = [ctypes.POINTER(Grid)]
+        self.scenario.restype = None
 
     def run_sim(self):
         """Run simulation by calling C foreign function."""
-        self.rickerTMz2D(self.g)
+        self.scenario(self.g)
 
 
 class TFSFDisk:
     """Simulate a TMz 2D FDTD grid with a TF/SF source.
 
-    TFSF source offset by 5 nodes from the edge of the grid.
+    The incident wave strikes a PEC circular disk.
 
-    Replicates figure 8.6 from John B. Schneider's textbook "Understanding the
+    Replicates figure 8.14 from John B. Schneider's textbook "Understanding the
     Finite-Difference Time-Domain Method."
     """
 
-    name = 'TFSFDisk'             # Scenario name
-    image_frame = 50                # Frame to use for scenario image
+    name = 'TFSFDisk'               # Scenario name
+    image_frame = 115               # Frame to use for scenario image
     sizeX = 101                     # X size of domain
     sizeY = 81                      # Y size of domain
     max_time = 300                  # Duration of simulation
     Cdtds = 1.0 / np.sqrt(2.0)      # Courant number
-    href = '/tfsf_disk'               # Webapp URL
+    href = '/tfsf_disk'             # Webapp URL
     title = "TF/SF Disk"
     description = """
         This scenario simulates a Total Field/Scattered Field
@@ -259,20 +259,20 @@ class TFSFDisk:
         g.Cdtds = 1.0 / np.sqrt(2.0)    # Courant number
         self.arr = ArrayStorage(g)      # Initialize E and H-field arrays
         self.g = g
-        self.init_funcs()               # Initialize C foreign function
+        self.init_c_funcs()             # Initialize C foreign function
 
-    def init_funcs(self):
+    def init_c_funcs(self):
         """Specify order of C functions used in scenario."""
         root = get_project_root()
         lib_path = root / 'src/C/lib/libFDTD_TMz.so'
         c_lib = ctypes.CDLL(lib_path)
-        self.rickerTMz2D = c_lib.rickerTMz2D
-        self.rickerTMz2D.argtypes = [ctypes.POINTER(Grid)]
-        self.rickerTMz2D.restype = None
+        self.scenario = c_lib.scenarioCircle
+        self.scenario.argtypes = [ctypes.POINTER(Grid)]
+        self.scenario.restype = None
 
     def run_sim(self):
         """Run simulation by calling C foreign function."""
-        self.rickerTMz2D(self.g)
+        self.scenario(self.g)
 
 
 fdtd_scenario_list = (RickerTMz2D, TFSFSource, TFSFPlate, TFSFDisk)

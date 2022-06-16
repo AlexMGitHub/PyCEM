@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 
 # Local application/library specific imports
 from webapp.app import app
-from webapp.pages.fdtd import ricker, tfsf, fdtd_cards
+from webapp.pages.fdtd import ricker, tfsf, tfsf_plate, tfsf_disk, fdtd_cards
 from webapp.pages.start import startpage
 from webapp.pages.styling import content_style
 from pycem.fdtd_scenarios import fdtd_scenario_list
@@ -37,10 +37,14 @@ def display_page(pathname):
         return ricker.content, startpage.fdtd_list_group
     elif pathname == '/tfsf':
         return tfsf.content, startpage.fdtd_list_group
+    elif pathname == '/tfsf_plate':
+        return tfsf_plate.content, startpage.fdtd_list_group
+    elif pathname == '/tfsf_disk':
+        return tfsf_disk.content, startpage.fdtd_list_group
     else:
         return (html.Div(html.P('404'), style=content_style),
                 startpage.fdtd_list_group)
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

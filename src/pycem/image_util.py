@@ -2,19 +2,19 @@
 # Standard system imports
 from pathlib import Path
 
+# Related third party imports
+
 # Local application/library specific imports
 from pycem.utilities import get_project_root
-from pycem.fdtd_scenarios import Grid, RickerTMz2D, TFSFSource
+from pycem.fdtd_scenarios import (
+    Grid, RickerTMz2D, TFSFSource, fdtd_scenario_list)
 from pycem.fdtd_pyvista import save_mesh_png
 
-scenarios = (
-    RickerTMz2D,  TFSFSource
-)
 
-
+# %% Functions
 def create_fdtd_images():
     """Create image previews for FDTD scenarios if they don't exist."""
-    for scenario in scenarios:
+    for scenario in fdtd_scenario_list:
         g = Grid()
         scenario_init = scenario(g)
         fn = get_project_root() / \

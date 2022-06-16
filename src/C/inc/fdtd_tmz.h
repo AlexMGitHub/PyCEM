@@ -75,4 +75,6 @@ void updateTFSF(struct Grid *g, struct Grid1D *g1);
 void gridInit1d(struct Grid1D *g);
 void updateH1d(struct Grid1D *g);
 void updateE1d(struct Grid1D *g);
+void add_PEC_plate(struct Grid *g);
+void add_PEC_disk(struct Grid *g);
 #endif

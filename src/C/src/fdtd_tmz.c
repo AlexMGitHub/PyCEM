@@ -75,14 +75,15 @@ void scenarioTFSF(struct Grid *g)
 {
     /* TMz simulation with TFSF source at left side of grid.
 
-       Reproduces Fig. 8.5 from John B. Schneider's textbook
+       Reproduces Fig. 8.6 from John B. Schneider's textbook
        Understanding the Finite-Difference Time-Domain Method.
     */
-    // struct Grid1D *g1 = malloc(sizeof(struct Grid1D));
+
     struct Grid1D *g1;
     ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
     initABC(g);                     // Initialize absorbing boundary condition
     initTFSF(g, g1);                // Initialize total field/scattered field source
+
     for (g->time = 1; g->time < g->max_time; g->time++)
     {
         updateH2d(g);      // Update magnetic field
@@ -92,33 +93,51 @@ void scenarioTFSF(struct Grid *g)
     }
 }
 
-// void scenarioPlate(struct Grid *g)
-//{
-/* TMz simulation with TFSF source and vertical PEC plate.
-
-   Reproduces Fig. 8.6 from John B. Schneider's textbook
-   Understanding the Finite-Difference Time-Domain Method.
-*/
-/*
-initABC(g);          // Initialize absorbing boundary condition
-initTFSF(g);         // Initialize total field/scattered field source
-for (g->time = 1; g->time < g->max_time; g->time++)
+void scenarioPlate(struct Grid *g)
 {
-  updateH2d(g);   // Update magnetic field
-  updateTFSF(g);  // Update total field/scattered field
-  updateE2d(g);   // Update electric field
-  updateABC(g);   // Update absorbing boundary condition
+    /* TMz simulation with TFSF source and vertical PEC plate.
+
+    Reproduces Fig. 8.7 from John B. Schneider's textbook
+    Understanding the Finite-Difference Time-Domain Method.
+    */
+
+    struct Grid1D *g1;
+    ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
+    add_PEC_plate(g);               // add vertical PEC plate to grid
+    initABC(g);                     // Initialize absorbing boundary condition
+    initTFSF(g, g1);                // Initialize total field/scattered field source
+
+    for (g->time = 1; g->time < g->max_time; g->time++)
+    {
+        updateH2d(g);      // Update magnetic field
+        updateTFSF(g, g1); // Update total field/scattered field
+        updateE2d(g);      // Update electric field
+        updateABC(g);      // Update absorbing boundary condition
+    }
 }
-}*/
 
-// void scenarioCircle(struct Grid *g)
-//{
-/* TMz simulation with TFSF source and PEC circle.
+void scenarioCircle(struct Grid *g)
+{
+    /* TMz simulation with TFSF source and PEC circle.
 
-   Reproduces Fig. 8.7 from John B. Schneider's textbook
-   Understanding the Finite-Difference Time-Domain Method.
-*/
-//}
+    Reproduces Fig. 8.14 from John B. Schneider's textbook
+    Understanding the Finite-Difference Time-Domain Method.
+    */
+
+    struct Grid1D *g1;
+    ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
+    add_PEC_disk(g);                // add circular PEC disk to grid
+    initABC(g);                     // Initialize absorbing boundary condition
+    initTFSF(g, g1);                // Initialize total field/scattered field source
+
+    for (g->time = 1; g->time < g->max_time; g->time++)
+    {
+        updateH2d(g);      // Update magnetic field
+        updateTFSF(g, g1); // Update total field/scattered field
+        updateE2d(g);      // Update electric field
+        updateABC(g);      // Update absorbing boundary condition
+    }
+}
 
 /******************************************************************************
  *  Sources
@@ -209,15 +228,67 @@ void updateTFSF(struct Grid *g, struct Grid1D *g1)
     // correct Ez field along left edge
     mm = firstX;
     for (nn = firstY; nn <= lastY; nn++)
-        EzG(g->time, mm, nn) -= Cezh[mm][nn] * g1->Hy[mm - 1];
+        EzG(g->time - 1, mm, nn) -= Cezh[mm][nn] * g1->Hy[mm - 1];
 
     // correct Ez field along right edge
     mm = lastX;
     for (nn = firstY; nn <= lastY; nn++)
-        EzG(g->time, mm, nn) += Cezh[mm][nn] * g1->Hy[mm];
+        EzG(g->time - 1, mm, nn) += Cezh[mm][nn] * g1->Hy[mm];
 
     // no need to correct Ez along top and bottom since
     // incident Hx is zero
+
+    return;
+}
+
+/******************************************************************************
+ *  Scatterers
+ ******************************************************************************/
+void add_PEC_plate(struct Grid *g)
+{
+    /* Create vertical PEC plate scatterer. */
+
+    double(*Cezh)[g->sizeY] = g->Cezh;
+    double(*Ceze)[g->sizeY] = g->Ceze;
+
+    uint pec_left_offset = 20;
+    uint pec_bottom_offset = 20;
+    uint pec_top_offset = 20;
+
+    for (uint nn = pec_bottom_offset; nn < g->sizeY - pec_top_offset; nn++)
+    {
+        Ceze[pec_left_offset][nn] = 0;
+        Cezh[pec_left_offset][nn] = 0;
+    }
+
+    return;
+}
+
+void add_PEC_disk(struct Grid *g)
+{
+    /* Create circular PEC disk scatterer. */
+
+    double(*Cezh)[g->sizeY] = g->Cezh;
+    double(*Ceze)[g->sizeY] = g->Ceze;
+
+    uint rad = 12;
+    uint xCenter = g->sizeX / 2;
+    uint yCenter = g->sizeY / 2;
+    int xLocation, yLocation;
+
+    for (uint mm = 1; mm < g->sizeX - 1; mm++)
+    {
+        xLocation = (int)mm - (int)xCenter;
+        for (uint nn = 1; nn < g->sizeY - 1; nn++)
+        {
+            yLocation = (int)nn - (int)yCenter;
+            if ((pow(xLocation, 2) + pow(yLocation, 2)) < pow(rad, 2))
+            {
+                Ceze[mm][nn] = 0;
+                Cezh[mm][nn] = 0;
+            }
+        }
+    }
 
     return;
 }
@@ -261,7 +332,12 @@ void updateABC(struct Grid *g)
     // ABC at left side of grid //
     for (nn = 0; nn < g->sizeY; nn++)
     {
-        EzG(g->time, 0, nn) = coef0 * (EzG(g->time, 2, nn) + EzLeft(0, 1, nn)) + coef1 * (EzLeft(0, 0, nn) + EzLeft(2, 0, nn) - EzG(g->time, 1, nn) - EzLeft(1, 1, nn)) + coef2 * EzLeft(1, 0, nn) - EzLeft(2, 1, nn);
+        // clang-format off
+        EzG(g->time, 0, nn) = 
+            coef0 * (EzG(g->time, 2, nn) + EzLeft(0, 1, nn)) + 
+            coef1 * (EzLeft(0, 0, nn) + EzLeft(2, 0, nn) 
+                - EzG(g->time, 1, nn) - EzLeft(1, 1, nn)) + 
+            coef2 * EzLeft(1, 0, nn) - EzLeft(2, 1, nn);
 
         // memorize old fields //
         for (mm = 0; mm < 3; mm++)
@@ -274,7 +350,11 @@ void updateABC(struct Grid *g)
     // ABC at right side of grid //
     for (nn = 0; nn < g->sizeY; nn++)
     {
-        EzG(g->time, g->sizeX - 1, nn) = coef0 * (EzG(g->time, g->sizeX - 3, nn) + EzRight(0, 1, nn)) + coef1 * (EzRight(0, 0, nn) + EzRight(2, 0, nn) - EzG(g->time, g->sizeX - 2, nn) - EzRight(1, 1, nn)) + coef2 * EzRight(1, 0, nn) - EzRight(2, 1, nn);
+        EzG(g->time, g->sizeX - 1, nn) = 
+            coef0 * (EzG(g->time, g->sizeX - 3, nn) + EzRight(0, 1, nn)) + 
+            coef1 * (EzRight(0, 0, nn) + EzRight(2, 0, nn) 
+                - EzG(g->time, g->sizeX - 2, nn) - EzRight(1, 1, nn)) + 
+            coef2 * EzRight(1, 0, nn) - EzRight(2, 1, nn);
 
         // memorize old fields //
         for (mm = 0; mm < 3; mm++)
@@ -287,7 +367,11 @@ void updateABC(struct Grid *g)
     // ABC at bottom of grid //
     for (mm = 0; mm < g->sizeX; mm++)
     {
-        EzG(g->time, mm, 0) = coef0 * (EzG(g->time, mm, 2) + EzBottom(0, 1, mm)) + coef1 * (EzBottom(0, 0, mm) + EzBottom(2, 0, mm) - EzG(g->time, mm, 1) - EzBottom(1, 1, mm)) + coef2 * EzBottom(1, 0, mm) - EzBottom(2, 1, mm);
+        EzG(g->time, mm, 0) = 
+            coef0 * (EzG(g->time, mm, 2) + EzBottom(0, 1, mm)) + 
+            coef1 * (EzBottom(0, 0, mm) + EzBottom(2, 0, mm) 
+                - EzG(g->time, mm, 1) - EzBottom(1, 1, mm)) + 
+            coef2 * EzBottom(1, 0, mm) - EzBottom(2, 1, mm);
 
         // memorize old fields //
         for (nn = 0; nn < 3; nn++)
@@ -300,7 +384,11 @@ void updateABC(struct Grid *g)
     // ABC at top of grid //
     for (mm = 0; mm < g->sizeX; mm++)
     {
-        EzG(g->time, mm, g->sizeY - 1) = coef0 * (EzG(g->time, mm, g->sizeY - 3) + EzTop(0, 1, mm)) + coef1 * (EzTop(0, 0, mm) + EzTop(2, 0, mm) - EzG(g->time, mm, g->sizeY - 2) - EzTop(1, 1, mm)) + coef2 * EzTop(1, 0, mm) - EzTop(2, 1, mm);
+        EzG(g->time, mm, g->sizeY - 1) = 
+            coef0 * (EzG(g->time, mm, g->sizeY - 3) + EzTop(0, 1, mm)) + 
+            coef1 * (EzTop(0, 0, mm) + EzTop(2, 0, mm) 
+                - EzG(g->time, mm, g->sizeY - 2) - EzTop(1, 1, mm)) + 
+            coef2 * EzTop(1, 0, mm) - EzTop(2, 1, mm);
 
         // memorize old fields //
         for (nn = 0; nn < 3; nn++)
@@ -309,7 +397,7 @@ void updateABC(struct Grid *g)
             EzTop(nn, 0, mm) = EzG(g->time, mm, g->sizeY - 1 - nn);
         }
     }
-
+    // clang-format on
     return;
 }
 
@@ -319,8 +407,9 @@ void gridInit1d(struct Grid1D *g)
     uint mm;
     uint NLOSS = 20;
     double MAX_LOSS = 0.35;
+    g->sizeX += NLOSS; // size of domain /*@\label{grid1dezA}@*/
     uint SizeX = g->sizeX;
-    SizeX += NLOSS; // size of domain /*@\label{grid1dezA}@*/
+
     // Type = oneDGrid;   // set grid type  /*@\label{grid1dezB}@*/
 
     ALLOC_1D(g->Hy, SizeX - 1, double); /*@\label{grid1dezC}@*/
