@@ -95,7 +95,7 @@ class RickerTMz2D:
     sizeY = 81                      # Y size of domain
     max_time = 300                  # Duration of simulation
     Cdtds = 1.0 / np.sqrt(2.0)      # Courant number
-    href = '/ricker'                  # Webapp URL
+    href = '/ricker'                # Webapp URL
     title = "Ricker Wavelet"
     description = """
         This scenario simulates a Ricker Wavelet source at the center of a 2D
@@ -192,7 +192,7 @@ class TFSFPlate:
     sizeY = 81                      # Y size of domain
     max_time = 300                  # Duration of simulation
     Cdtds = 1.0 / np.sqrt(2.0)      # Courant number
-    href = '/tfsf_plate'              # Webapp URL
+    href = '/tfsf_plate'            # Webapp URL
     title = "TF/SF Plate"
     description = """
         This scenario simulates a Total Field/Scattered Field
@@ -276,5 +276,3 @@ class TFSFDisk:
 
 
 fdtd_scenario_list = (RickerTMz2D, TFSFSource, TFSFPlate, TFSFDisk)
-fdtd_scenario_dict = {
-    scenario.title: scenario for scenario in fdtd_scenario_list}

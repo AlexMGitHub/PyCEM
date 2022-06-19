@@ -1,27 +1,27 @@
 ###############################################################################
-#	TMz FDTD Demo Makefile			         						          #
+#	Benchmarking Makefile			         						          #
 #																	          #
 #	Project:	PyCEM        										          #
-#	Date:		01/18/2022											          #
+#	Date:		12/11/2021											          #
 #																	          #
 ###############################################################################
 
 ## Library filename
-LIBFILE = libFDTD_TMz.so
+LIBFILE = libbenchmarking.so
 
 ## Compiler
 CC=gcc					# GNU C Compiler
 
 ## Directories
-SRCDIR = ./src
-OBJDIR = ./src/obj
-INCDIR = ./inc
-BINDIR = ./bin
-LIBDIR = ./lib
+SRCDIR = ../src/benchmarking
+OBJDIR = ../src/benchmarking/obj
+INCDIR = ../inc
+BINDIR = ../bin
+LIBDIR = ../lib
 
 ## Compiler flags
 CFLAGS = -I$(INCDIR)	# Look in inc directory for header files
-CFLAGS += -fPIC			# Generate position independent code (for shared lib)
+CFLAGS += -fpic			# Generate position independent code (for shared lib)
 CFLAGS += -Wall			# Enables warnings for all questionable constructions
 CFLAGS += -Wextra		# Enables additional warnings
 CFLAGS += -Wconversion	# Warn for implicit conversions that may alter a value
@@ -31,14 +31,14 @@ CFLAGS += -O3			# Enable many optimizations
 
 ## Define libraries
 LIBS = -lpthread		# Necessary when including pthread.h
-LIBS += -lm				# Math library, only necessary if including math.h
+# LIBS += -lm			# Math library, only necessary if including math.h
 
 ## Define source, dependencies (headers), and object files
 ## Then append directory to the filenames
-_SRC = fdtd_tmz.c
+_SRC = benchmarking.c
 SRC = $(_SRC:%=$(SRCDIR)/%)
 
-_DEPS = fdtd_tmz.h
+_DEPS = benchmarking.h
 DEPS = $(_DEPS:%=$(INCDIR)/%)
 
 _OBJ = $(_SRC:.c=.o)
@@ -54,7 +54,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 ## Create shared library
 $(LIBDIR)/$(LIBFILE): $(OBJ)
 	$(CC) -shared -o $@ $(OBJ)
-
 
 ## Indicate phony targets
 .PHONY: clean all 		# Runs rules even if files named "clean" or "all" exist

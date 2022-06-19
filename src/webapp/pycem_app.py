@@ -12,7 +12,6 @@ from webapp.app import app
 from webapp.pages.fdtd import ricker, tfsf, tfsf_plate, tfsf_disk, fdtd_cards
 from webapp.pages.start import startpage
 from webapp.pages.styling import content_style
-from pycem.fdtd_scenarios import fdtd_scenario_list
 from pycem.utilities import get_project_root
 
 
@@ -25,6 +24,13 @@ app.layout = html.Div([
 ])
 
 
+# %% Generate dict of FDTD Scenario URLs to page content
+fdtd_page_list = (ricker, tfsf, tfsf_plate, tfsf_disk)
+fdtd_page_dict = {page.scenario.href: (page.content, startpage.fdtd_list_group)
+                  for page in fdtd_page_list}
+
+
+# %% App URLs
 @app.callback(Output('page-content', 'children'),
               Output('list-group', 'children'),
               Input('url', 'pathname'))
@@ -33,14 +39,8 @@ def display_page(pathname):
         return startpage.content, startpage.list_group
     elif pathname == '/fdtd':
         return fdtd_cards.content, startpage.fdtd_list_group
-    elif pathname == '/ricker':
-        return ricker.content, startpage.fdtd_list_group
-    elif pathname == '/tfsf':
-        return tfsf.content, startpage.fdtd_list_group
-    elif pathname == '/tfsf_plate':
-        return tfsf_plate.content, startpage.fdtd_list_group
-    elif pathname == '/tfsf_disk':
-        return tfsf_disk.content, startpage.fdtd_list_group
+    elif pathname in fdtd_page_dict:
+        return fdtd_page_dict[pathname]
     else:
         return (html.Div(html.P('404'), style=content_style),
                 startpage.fdtd_list_group)

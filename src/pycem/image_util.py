@@ -1,3 +1,4 @@
+"""Generate thumbnail images for simulation scenarios."""
 # %% Imports
 # Standard system imports
 from pathlib import Path
@@ -6,8 +7,7 @@ from pathlib import Path
 
 # Local application/library specific imports
 from pycem.utilities import get_project_root
-from pycem.fdtd_scenarios import (
-    Grid, RickerTMz2D, TFSFSource, fdtd_scenario_list)
+from pycem.fdtd_scenarios import Grid, fdtd_scenario_list
 from pycem.fdtd_pyvista import save_mesh_png
 
 

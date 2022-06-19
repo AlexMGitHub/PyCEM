@@ -1,3 +1,8 @@
+# Ugly hack to ignore all files that lack extensions (such as executables)
+*
+!/**/
+!*.*
+
 # Package and IDE artifacts
 *.pyc
 *.egg*
@@ -10,7 +15,6 @@ htmlcov/
 # C artifacts
 *.o
 *.so
-lib/
 
 # Jupyter Notebook Artifacts
 .ipynb_checkpoints
