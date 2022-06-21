@@ -90,6 +90,25 @@ void scenarioCircle(struct Grid *g)
     }
 }
 
+void scenarioCornerReflector(struct Grid *g)
+{
+    /* TMz simulation with TFSF source and a corner reflector.*/
+
+    struct Grid1D *g1;
+    ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
+    add_corner_reflector(g);        // add corner reflector to grid
+    initABC(g);                     // Initialize absorbing boundary condition
+    initTFSF(g, g1);                // Initialize total field/scattered field source
+
+    for (g->time = 1; g->time < g->max_time; g->time++)
+    {
+        updateH2d(g);      // Update magnetic field
+        updateTFSF(g, g1); // Update total field/scattered field
+        updateE2d(g);      // Update electric field
+        updateABC(g);      // Update absorbing boundary condition
+    }
+}
+
 /******************************************************************************
  *  Scatterers
  ******************************************************************************/
@@ -136,6 +155,38 @@ void add_PEC_disk(struct Grid *g)
                 Ceze[mm][nn] = 0;
                 Cezh[mm][nn] = 0;
             }
+        }
+    }
+
+    return;
+}
+
+void add_corner_reflector(struct Grid *g)
+{
+    /* Create corner reflector scatterer. */
+
+    double(*Cezh)[g->sizeY] = g->Cezh;
+    double(*Ceze)[g->sizeY] = g->Ceze;
+
+    uint xCenter = g->sizeX / 2;
+    uint yCenter = g->sizeY / 2;
+
+    uint nnlow = (uint)(yCenter * 0.5);
+    uint nnhigh = (uint)(yCenter * 1.5);
+    for (uint mm = xCenter; mm <= (uint)(xCenter * 1.5); mm++)
+    {
+        if (nnlow <= yCenter)
+        {
+            Ceze[mm][nnlow] = 0;
+            Cezh[mm][nnlow] = 0;
+            Ceze[mm][nnhigh] = 0;
+            Cezh[mm][nnhigh] = 0;
+            nnlow++;
+            nnhigh--;
+        }
+        else
+        {
+            break;
         }
     }
 

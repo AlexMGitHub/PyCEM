@@ -7,47 +7,43 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 # Local application/library specific imports
+from pycem.fdtd_scenarios import fdtd_scenario_list
 from webapp.pages.styling import content_style, sidebar_div_style, \
     sidebar_style, paragraph_style
 
 
 # %% Dash app layout
+# By default navbar content is blank until a solver is selected
 list_group = html.Div(id='list-group')
+
+# FDTD navbar content
+fdtd_2d_header = html.Div(
+    html.P(
+        "2D Simulations", style=paragraph_style
+    ), style=sidebar_div_style
+)
+
+fdtd_2d_scenarios = [
+    dbc.NavLink(
+        scenario.title, href=scenario.href,
+        active="exact",
+        id=scenario.title[1:],
+    ) for scenario in fdtd_scenario_list]
+
+fdtd_3d_header = html.Div(
+    html.P(
+        "3D Simulations", style=paragraph_style
+    ), style=sidebar_div_style
+)
 
 fdtd_list_group = dbc.ListGroup(
     [
-        html.Div(
-            html.P(
-                "2D Simulations", style=paragraph_style
-            ), style=sidebar_div_style
-        ),
-        dbc.NavLink(
-            "Ricker Wavelet", href="/ricker",  # color="secondary",
-            active="exact",
-            id="ricker",
-        ),
-        dbc.NavLink(
-            "TF/SF", href="/tfsf",  # color="secondary",
-            active="exact",
-            id="tfsf"
-        ),
-        dbc.NavLink(
-            "TF/SF Plate", href="/tfsf_plate",  # color="secondary",
-            active="exact",
-            id="tfsf_plate"
-        ),
-        dbc.NavLink(
-            "TF/SF Disk", href="/tfsf_disk",  # color="secondary",
-            active="exact",
-            id="tfsf_disk"
-        ),
-        html.Div(
-            html.P(
-                "3D Simulations", style=paragraph_style
-            ), style=sidebar_div_style
-        ),
+        fdtd_2d_header,
+        fdtd_3d_header,
     ]
 )
+
+fdtd_list_group.children[1:1] = fdtd_2d_scenarios
 
 sidebar = html.Div(
     [

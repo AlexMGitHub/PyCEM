@@ -70,8 +70,11 @@ void scenarioRicker(struct Grid *g);
 void scenarioTFSF(struct Grid *g);
 void scenarioPlate(struct Grid *g);
 void scenarioCircle(struct Grid *g);
+void scenarioCornerReflector(struct Grid *g);
+// Scatterers
 void add_PEC_plate(struct Grid *g);
 void add_PEC_disk(struct Grid *g);
+void add_corner_reflector(struct Grid *g);
 // Sources
 double updateRickerWavelet(struct Grid *g, double location);
 double updateTFSFWavelet(struct Grid1D *g, double location);
