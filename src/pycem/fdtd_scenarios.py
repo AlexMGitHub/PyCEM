@@ -321,5 +321,51 @@ class TFSFCornerReflector:
         self.scenario(self.g)
 
 
+class TFSFMinefield:
+    """Simulate a TMz 2D FDTD grid with a TF/SF source.
+
+    The incident wave strikes multiple circular scatterers.
+    """
+
+    name = 'TFSFMinefield'          # Scenario name
+    image_frame = 150               # Frame to use for scenario image
+    sizeX = 101                     # X size of domain
+    sizeY = 81                      # Y size of domain
+    max_time = 300                  # Duration of simulation
+    Cdtds = 1.0 / np.sqrt(2.0)      # Courant number
+    href = '/tfsf_minefield'  # Webapp URL
+    title = "TF/SF Minefield Scatterers"
+    description = """
+        This scenario simulates a Total Field/Scattered Field
+        wave impinging on multiple circular scatterers.  The edges of the 
+        grid have an absorbing boundary condition (ABC) to 
+        capture the radiated waves.
+        """
+
+    def __init__(self, g):
+        """Initialize the FDTD grid and any update functions."""
+        g.sizeX = 101                   # X size of domain
+        g.sizeY = 81                    # Y size of domain
+        g.time = 0                      # Current time step
+        g.max_time = 300                # Duration of simulation
+        g.Cdtds = 1.0 / np.sqrt(2.0)    # Courant number
+        self.arr = ArrayStorage(g)      # Initialize E and H-field arrays
+        self.g = g
+        self.init_c_funcs()             # Initialize C foreign function
+
+    def init_c_funcs(self):
+        """Specify order of C functions used in scenario."""
+        root = get_project_root()
+        lib_path = root / 'src/C/lib/libFDTD_TMz.so'
+        c_lib = ctypes.CDLL(lib_path)
+        self.scenario = c_lib.scenarioMinefield
+        self.scenario.argtypes = [ctypes.POINTER(Grid)]
+        self.scenario.restype = None
+
+    def run_sim(self):
+        """Run simulation by calling C foreign function."""
+        self.scenario(self.g)
+
+
 fdtd_scenario_list = (RickerTMz2D, TFSFSource, TFSFPlate, TFSFDisk,
-                      TFSFCornerReflector)
+                      TFSFCornerReflector, TFSFMinefield)

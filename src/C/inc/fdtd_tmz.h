@@ -75,10 +75,11 @@ void scenarioCornerReflector(struct Grid *g);
 void add_PEC_plate(struct Grid *g);
 void add_PEC_disk(struct Grid *g);
 void add_corner_reflector(struct Grid *g);
+void add_minefield_scatterers(struct Grid *g);
 // Sources
 double updateRickerWavelet(struct Grid *g, double location);
 double updateTFSFWavelet(struct Grid1D *g, double location);
-void initTFSF(struct Grid *g, struct Grid1D *g1);
+void initTFSF(struct Grid *g, struct Grid1D *g1, uint firstx, uint lastx, uint firsty, uint lasty);
 void updateTFSF(struct Grid *g, struct Grid1D *g1);
 void gridInit1d(struct Grid1D *g);
 // Updates

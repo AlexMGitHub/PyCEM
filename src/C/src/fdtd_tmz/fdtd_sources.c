@@ -7,7 +7,11 @@
 #include <stdlib.h>
 
 /* Constants */
-const double PPW = 20;
+static const double PPW = 20;
+
+/* Global variables */
+static uint firstX = 0, firstY = 0, // indices for first point in TF region
+    lastX = 0, lastY = 0;           // indices for last point in TF region
 
 /******************************************************************************
  *  Sources
@@ -30,13 +34,18 @@ double updateTFSFWavelet(struct Grid1D *g, double location)
     return (1.0 - 2.0 * arg) * exp(-arg);
 }
 
-void initTFSF(struct Grid *g, struct Grid1D *g1)
+void initTFSF(struct Grid *g, struct Grid1D *g1, uint firstx, uint lastx, uint firsty, uint lasty)
 {
     g1->Cdtds = g->Cdtds;
     g1->time = g->time;
     g1->max_time = g->max_time;
     g1->sizeX = g->sizeX;
     g1->sizeY = g->sizeY;
+
+    firstX = firstx;
+    firstY = firsty;
+    lastX = lastx;
+    lastY = lasty;
 
     gridInit1d(g1); // initialize 1d grid
 
@@ -51,9 +60,6 @@ void updateTFSF(struct Grid *g, struct Grid1D *g1)
     double(*Hx)[g->sizeY - 1] = g->Hx;
     double(*Chxe)[g->sizeY - 1] = g->Chxe;
     double(*Cezh)[g->sizeY] = g->Cezh;
-
-    uint firstX = 5, firstY = 5, // indices for first point in TF region /*@\label{tfsftmzA}@*/
-        lastX = 95, lastY = 75;  // indices for last point in TF region  /*@\label{tfsftmzB}@*/
 
     // check if tfsfInit() has been called
     if (firstX <= 0)

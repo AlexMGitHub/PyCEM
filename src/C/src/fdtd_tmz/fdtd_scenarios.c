@@ -33,7 +33,7 @@ void scenarioTFSF(struct Grid *g)
     struct Grid1D *g1;
     ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
     initABC(g);                     // Initialize absorbing boundary condition
-    initTFSF(g, g1);                // Initialize total field/scattered field source
+    initTFSF(g, g1, 5, 95, 5, 75);  // Initialize total field/scattered field source
 
     for (g->time = 1; g->time < g->max_time; g->time++)
     {
@@ -56,7 +56,7 @@ void scenarioPlate(struct Grid *g)
     ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
     add_PEC_plate(g);               // add vertical PEC plate to grid
     initABC(g);                     // Initialize absorbing boundary condition
-    initTFSF(g, g1);                // Initialize total field/scattered field source
+    initTFSF(g, g1, 5, 95, 5, 75);  // Initialize total field/scattered field source
 
     for (g->time = 1; g->time < g->max_time; g->time++)
     {
@@ -79,7 +79,7 @@ void scenarioCircle(struct Grid *g)
     ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
     add_PEC_disk(g);                // add circular PEC disk to grid
     initABC(g);                     // Initialize absorbing boundary condition
-    initTFSF(g, g1);                // Initialize total field/scattered field source
+    initTFSF(g, g1, 5, 95, 5, 75);  // Initialize total field/scattered field source
 
     for (g->time = 1; g->time < g->max_time; g->time++)
     {
@@ -98,7 +98,26 @@ void scenarioCornerReflector(struct Grid *g)
     ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
     add_corner_reflector(g);        // add corner reflector to grid
     initABC(g);                     // Initialize absorbing boundary condition
-    initTFSF(g, g1);                // Initialize total field/scattered field source
+    initTFSF(g, g1, 5, 95, 5, 75);  // Initialize total field/scattered field source
+
+    for (g->time = 1; g->time < g->max_time; g->time++)
+    {
+        updateH2d(g);      // Update magnetic field
+        updateTFSF(g, g1); // Update total field/scattered field
+        updateE2d(g);      // Update electric field
+        updateABC(g);      // Update absorbing boundary condition
+    }
+}
+
+void scenarioMinefield(struct Grid *g)
+{
+    /* TMz simulation with TFSF source and mulitple circular scatterers.*/
+
+    struct Grid1D *g1;
+    ALLOC_1D(g1, 1, struct Grid1D); // allocate memory for 1D Grid
+    add_minefield_scatterers(g);    // add multiple circular scatterers
+    initABC(g);                     // Initialize absorbing boundary condition
+    initTFSF(g, g1, 5, 95, 5, 75);  // Initialize total field/scattered field source
 
     for (g->time = 1; g->time < g->max_time; g->time++)
     {
@@ -187,6 +206,39 @@ void add_corner_reflector(struct Grid *g)
         else
         {
             break;
+        }
+    }
+
+    return;
+}
+
+void add_minefield_scatterers(struct Grid *g)
+{
+    /* Create multiple circular scatterers. */
+
+    double(*Cezh)[g->sizeY] = g->Cezh;
+    double(*Ceze)[g->sizeY] = g->Ceze;
+
+    const uint NUM_SCATTERERS = 5;
+    uint rads[5] = {5, 12, 10, 8, 6};
+    uint xCenters[5] = {g->sizeX / 8, g->sizeX / 3, g->sizeX / 2, 3 * g->sizeX / 4, 4 * g->sizeX / 5};
+    uint yCenters[5] = {4 * g->sizeY / 5, 1 * g->sizeY / 3, 2 * g->sizeY / 3, 2 * g->sizeY / 5, 4 * g->sizeY / 5};
+    int xLocation, yLocation;
+
+    for (uint i = 0; i < NUM_SCATTERERS; i++)
+    {
+        for (uint mm = 1; mm < g->sizeX - 1; mm++)
+        {
+            xLocation = (int)mm - (int)xCenters[i];
+            for (uint nn = 1; nn < g->sizeY - 1; nn++)
+            {
+                yLocation = (int)nn - (int)yCenters[i];
+                if ((pow(xLocation, 2) + pow(yLocation, 2)) < pow(rads[i], 2))
+                {
+                    Ceze[mm][nn] = 0;
+                    Cezh[mm][nn] = 0;
+                }
+            }
         }
     }
 

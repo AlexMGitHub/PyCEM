@@ -43,8 +43,9 @@ fdtd_list_group = dbc.ListGroup(
     ]
 )
 
-fdtd_list_group.children[1:1] = fdtd_2d_scenarios
+fdtd_list_group.children[1:1] = fdtd_2d_scenarios  # Insert scenarios in list
 
+# Sidebar content
 sidebar = html.Div(
     [
         html.H2(html.A("PyCEM", href='/'), className="display-4"),
@@ -78,6 +79,7 @@ sidebar = html.Div(
     style=sidebar_style, className="bg-light"
 )
 
+# Start page content
 content = html.Div([
     html.H3('Start page'),
 ], id='content', style=content_style)

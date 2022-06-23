@@ -2,7 +2,7 @@
 # %% Dash app styling
 # Styling for content.  Add left margin so content is to the right of sidebar.
 content_style = {
-    "margin-left": "18rem",
+    "margin-left": "20rem",
     "margin-right": "2rem",
     "margin-top": "0rem",
     "padding": "2rem 1rem",
@@ -14,7 +14,7 @@ sidebar_style = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "16rem",
+    "width": "18rem",
     "padding": "2rem 1rem",
     # "background-color": "#f8f9fa",
 }
