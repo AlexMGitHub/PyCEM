@@ -34,12 +34,6 @@ The above command will run PyCEM in production mode.  If you'd like to run PyCEM
 docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d
 ```
 
-docker compose -f docker/docker-compose.dev.yml up
-
-docker compose up
-
-Used Ubuntu image because needed GLIBC version 2.34; Python 3.7 image had 2.31
-
 ## Motivation for writing a C Library
 
 Python has two major performance limitations: one, it is an interpreted language and as such will always be slower than a compiled language.  Two, Python has the so-called "Global Interpreter Lock" (GIL) which prevents truly parallel multithreading.  Python's `threading` module is limited to concurrent multithreading, meaning that only one thread can execute Python code at once because each thread must acquire the GIL before executing code.  Parallel computation can be achieved by using the `multiprocessing` library, but subprocesses have more overhead than threads and do not benefit from shared memory.
