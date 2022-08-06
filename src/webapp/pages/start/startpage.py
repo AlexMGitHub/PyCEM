@@ -81,7 +81,7 @@ sidebar = html.Div(
 
 # Start page content
 content = html.Div([
-    html.H3('Start page'),
+    html.H3('Welcome to PyCEM!'),
 ], id='content', style=content_style)
 
 layout = html.Div([sidebar, content], style=content_style)

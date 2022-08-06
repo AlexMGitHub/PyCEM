@@ -1,7 +1,6 @@
 """Generate thumbnail images for simulation scenarios."""
 # %% Imports
 # Standard system imports
-from pathlib import Path
 
 # Related third party imports
 
@@ -17,12 +16,12 @@ def create_fdtd_images():
     for scenario in fdtd_scenario_list:
         g = Grid()
         scenario_init = scenario(g)
-        fn = get_project_root() / \
+        filename = get_project_root() / \
             f'src/webapp/assets/img/fdtd/{scenario_init.name}.png'
-        if not fn.is_file():
+        if not filename.is_file():
             scenario_init.run_sim()
             frame = scenario_init.image_frame
-            save_mesh_png(fn, scenario_init, frame)
+            save_mesh_png(filename, scenario_init, frame)
 
 
 if __name__ == '__main__':

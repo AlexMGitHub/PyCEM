@@ -2,11 +2,9 @@
 # %% Imports
 # Standard system imports
 import ctypes
-from pathlib import Path
 
 # Related third party imports
 import numpy as np
-import pyvista as pv
 
 # Local application/library specific imports
 from pycem.utilities import get_project_root
@@ -17,6 +15,7 @@ class ArrayStorage:
     """Initializes and stores E-Field and H-Field arrays."""
 
     def __init__(self, g):
+        """Create arrays and pointers to arrays."""
         imp0 = 377.0  # Impedance of free space
         # Initialize Numpy arrays
         Hx = np.zeros((g.sizeX, g.sizeY-1), dtype=np.double)
@@ -99,7 +98,7 @@ class RickerTMz2D:
     title = "Ricker Wavelet"
     description = """
         This scenario simulates a Ricker Wavelet source at the center of a 2D
-        grid.  The edges of the grid have a perfect electric conductor (PEC) 
+        grid.  The edges of the grid have a perfect electric conductor (PEC)
         boundary that reflects the radiated waves.
         """
 
@@ -147,8 +146,8 @@ class TFSFSource:
     title = "TF/SF"
     description = """
         This scenario simulates a Total Field/Scattered Field
-        wave traveling across a 2D grid.  The edges of the 
-        grid have an absorbing boundary condition (ABC) to 
+        wave traveling across a 2D grid.  The edges of the
+        grid have an absorbing boundary condition (ABC) to
         capture the radiated waves.
         """
 
@@ -196,8 +195,8 @@ class TFSFPlate:
     title = "TF/SF Plate"
     description = """
         This scenario simulates a Total Field/Scattered Field
-        wave impinging on a vertical PEC plate.  The edges of the 
-        grid have an absorbing boundary condition (ABC) to 
+        wave impinging on a vertical PEC plate.  The edges of the
+        grid have an absorbing boundary condition (ABC) to
         capture the radiated waves.
         """
 
@@ -245,8 +244,8 @@ class TFSFDisk:
     title = "TF/SF Disk"
     description = """
         This scenario simulates a Total Field/Scattered Field
-        wave impinging on a circular PEC desk.  The edges of the 
-        grid have an absorbing boundary condition (ABC) to 
+        wave impinging on a circular PEC desk.  The edges of the
+        grid have an absorbing boundary condition (ABC) to
         capture the radiated waves.
         """
 
@@ -291,8 +290,8 @@ class TFSFCornerReflector:
     title = "TF/SF Corner Reflector"
     description = """
         This scenario simulates a Total Field/Scattered Field
-        wave impinging on a corner reflector.  The edges of the 
-        grid have an absorbing boundary condition (ABC) to 
+        wave impinging on a corner reflector.  The edges of the
+        grid have an absorbing boundary condition (ABC) to
         capture the radiated waves.
         """
 
@@ -337,8 +336,8 @@ class TFSFMinefield:
     title = "TF/SF Minefield Scatterers"
     description = """
         This scenario simulates a Total Field/Scattered Field
-        wave impinging on multiple circular scatterers.  The edges of the 
-        grid have an absorbing boundary condition (ABC) to 
+        wave impinging on multiple circular scatterers.  The edges of the
+        grid have an absorbing boundary condition (ABC) to
         capture the radiated waves.
         """
 

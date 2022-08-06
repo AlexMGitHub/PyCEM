@@ -1,0 +1,11 @@
+services:
+  webapp:
+    build:
+      context: ./
+      dockerfile: ./docker/webapp.Dockerfile
+    ports:
+      - "8050:8050"
+    volumes:
+      # Set container to your timezone and local time
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"

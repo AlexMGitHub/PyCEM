@@ -1,0 +1,4 @@
+services:
+  webapp:
+    build:
+      target: production

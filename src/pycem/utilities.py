@@ -1,8 +1,17 @@
+"""Collection of useful functions."""
+# %% Imports
+# Standard system imports
 import os
 from pathlib import Path
 
+# Related third party imports
 
+# Local application/library specific imports
+
+
+# %% Functions
 def get_project_root():
+    """Return absolute path of root directory of project."""
     return Path(__file__).absolute().parent.parent.parent
 
 

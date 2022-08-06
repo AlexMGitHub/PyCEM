@@ -80,10 +80,10 @@ def save_mesh_movie(filepath_mov, scenario, set_progress, clim=[-3, 0]):
     pl.view_xy()
 
     pl.open_movie(filepath_mov)
-    for x in range(scenario.g.max_time):
-        values = log_norm(scenario.arr.Ez[x, :, :])
+    for i in range(scenario.g.max_time):
+        values = log_norm(scenario.arr.Ez[i, :, :])
         pl.update_scalars(values.flatten(order="F"))
         pl.render()
         pl.write_frame()
-        set_progress((str(x + 1), str(scenario.g.max_time)))
+        set_progress((str(i + 1), str(scenario.g.max_time)))
     pl.close()

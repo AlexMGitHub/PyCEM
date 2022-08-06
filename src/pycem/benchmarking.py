@@ -3,7 +3,6 @@
 # %% Imports
 # Standard system imports
 import ctypes
-from pathlib import Path
 
 # Related third party imports
 import numpy as np
@@ -13,7 +12,9 @@ from pycem.utilities import get_project_root
 
 
 # %% Classes
-class CLib_Wrapper:
+class C_Lib_Wrapper:
+    """Wrap C library using ctypes so that it is accessible to Python code."""
+
     def __init__(self):
         """Initialize C library and argument data types of its functions."""
         root = get_project_root()
@@ -49,16 +50,16 @@ class CLib_Wrapper:
 if __name__ == "__main__":
     # Create small random matrices to multiply
     rng = np.random.default_rng(12345)
-    mat1 = rng.random((2, 3), dtype=np.double)
-    mat2 = rng.random((3, 4), dtype=np.double)
-    clib = CLib_Wrapper()
+    matrix1 = rng.random((2, 3), dtype=np.double)
+    matrix2 = rng.random((3, 4), dtype=np.double)
+    clib = C_Lib_Wrapper()
 
     print('\nC library answer:')
-    c_result = clib.mat_mult_wrapper(mat1, mat2)
+    c_result = clib.mat_mult_wrapper(matrix1, matrix2)
     print(c_result)
 
     print('\nPython answer:')
-    python_result = mat1 @ mat2
+    python_result = matrix1 @ matrix2
     print(python_result)
 
     np.testing.assert_allclose(python_result, c_result, rtol=0, atol=1e-10)

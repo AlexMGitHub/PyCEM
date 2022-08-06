@@ -1,11 +1,11 @@
 """Web app user interface to PyCEM simulations."""
 # %% Imports
 # Standard system imports
+import os
 
 # Related third party imports
 from dash import html, dcc
 from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
 
 # Local application/library specific imports
 from webapp.app import app
@@ -14,7 +14,6 @@ from webapp.pages.fdtd import (
     fdtd_cards)
 from webapp.pages.start import startpage
 from webapp.pages.styling import content_style
-from pycem.utilities import get_project_root
 
 
 # %% Dash app layout
@@ -38,6 +37,7 @@ fdtd_page_dict = {page.scenario.href: (page.content, startpage.fdtd_list_group)
               Output('list-group', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
+    """Return appropriate page content when URL is changed."""
     if pathname == '/':
         return startpage.content, startpage.list_group
     elif pathname == '/fdtd':
@@ -50,4 +50,9 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    server_mode = os.environ['SERVER_DEBUG_MODE']
+    if server_mode == 'debug':
+        DEBUG_MODE = True
+    else:
+        DEBUG_MODE = False
+    app.run(host='0.0.0.0', port='8050', debug=DEBUG_MODE)

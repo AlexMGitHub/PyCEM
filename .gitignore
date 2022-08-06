@@ -20,7 +20,7 @@ htmlcov/
 .ipynb_checkpoints
 
 # Dash artifacts
-cache/
+cache.db*
 
 # Webapp Assets
 *.mp4

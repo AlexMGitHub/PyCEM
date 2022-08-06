@@ -1,7 +1,6 @@
 """Declare app as required for multi-page apps with long_callback()."""
 # %% Imports
 # Standard system imports
-from pathlib import Path
 
 # Related third party imports
 from dash import Dash
