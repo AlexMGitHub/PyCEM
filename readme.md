@@ -1,34 +1,59 @@
 # PyCEM
 
 <p align="center">
-<img src="docs/img/pycem.gif" title="The Whole Enchilada" alt="The Whole Enchilada" width="600"/>
+<img src="docs/img/pycem.gif" title="PyCEM" alt="PyCEM" width="600"/>
 </p>
 
 ## Overview
 
-PyCEM is a computational electromagnetics (CEM) learning project that visualizes electromagnetic simulations using PyVista and a Dash web app.
+PyCEM is a computational electromagnetics (CEM) learning project that
+visualizes electromagnetic simulations using PyVista and a Dash web app.
 
 The purpose of this learning project is threefold:
 
 1. Learn more about the three major CEM techniques: FDTD, MoM, and FEM.
-2. Learn how to use PyVista and Dash to build and visualize meshes for these CEM techniques.
-3. Improve my proficiency in writing C code, and integrate my C shared libraries with Python code to enable fast parallel multithreading in a Python web application.
+2. Learn how to use PyVista and Dash to build and visualize meshes for these
+   CEM techniques.
+3. Improve my proficiency in writing C code, and integrate my C shared
+   libraries with Python code to enable fast parallel multithreading in a
+   Python web application.
 
-PyCEM is currently a work in progress.  To date, I have a functional Dash web app that allows the user to browse a collection of two-dimensional FDTD scenarios.  The user can run the simulations with a click of a button, and then view the resulting PyVista animations in the browser.  The simulations are defined as Python classes, and NumPy arrays are passed to the C code as a `struct` of pointers.  Once the simulation is complete, the NumPy array containing the E-field values at each time step is represented as a PyVista mesh and used to generate an animation of the E-fields changing over time.
+PyCEM is currently a work in progress.  To date, I have a functional Dash web
+app that allows the user to browse a collection of two-dimensional FDTD
+scenarios.  The user can run the simulations with a click of a button, and then
+view the resulting PyVista animations in the browser.  The simulations are
+defined as Python classes, and NumPy arrays are passed to the C code as a
+`struct` of pointers.  Once the simulation is complete, the NumPy array
+containing the E-field values at each time step is represented as a PyVista
+mesh and used to generate an animation of the E-fields changing over time.
 
-I plan to write a three-dimensional FDTD solver next, and explore the possibility of creating ports that I can extract S-parameters and characteristic impedances from.  It would also be of interest to calculate far field radiation patterns for antenna simulations.
+I recently added an FDA simulator to calculate the characteristic or
+differential impedance of several common transmission lines.  There is
+surprisingly little information in the literature on how to perform these
+types of simulations considering how common a need it is.  I also found that
+many of the analytical formulas for these transmission lines contained
+typographical errors in both online calculators and in references such as
+IPC-2141A.
 
-The long-term goal is to create similar solvers for both Method of Moments (MoM) and Finite Element Method (FEM) codes.
+I plan to write a three-dimensional FDTD solver next, and explore the
+possibility of creating ports that I can extract S-parameters and
+characteristic impedances from.  It would also be of interest to calculate
+far field radiation patterns for antenna simulations.
+
+The long-term goal is to create similar solvers for both Method of Moments
+(MoM) and Finite Element Method (FEM) codes.
 
 ## Running the Docker container
 
-PyCEM can be run by building a Docker image and spinning up a container using the following command in the PyCEM directory:
+PyCEM can be run by building a Docker image and spinning up a container using
+the following command in the PyCEM directory:
 
 ```bash
 docker compose up -d
 ```
 
-The above command will run PyCEM in production mode.  If you'd like to run PyCEM in development mode use the following command:
+The above command will run PyCEM in production mode.  If you'd like to run
+PyCEM in development mode use the following command:
 
 ```bash
 docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d
@@ -36,29 +61,79 @@ docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d
 
 ## Motivation for writing a C Library
 
-Python has two major performance limitations: one, it is an interpreted language and as such will always be slower than a compiled language.  Two, Python has the so-called "Global Interpreter Lock" (GIL) which prevents truly parallel multithreading.  Python's `threading` module is limited to concurrent multithreading, meaning that only one thread can execute Python code at once because each thread must acquire the GIL before executing code.  Parallel computation can be achieved by using the `multiprocessing` library, but subprocesses have more overhead than threads and do not benefit from shared memory.
+Python has two major performance limitations: one, it is an interpreted
+language and as such will always be slower than a compiled language.  Two,
+Python has the so-called "Global Interpreter Lock" (GIL) which prevents truly
+parallel multithreading.  Python's `threading` module is limited to concurrent
+multithreading, meaning that only one thread can execute Python code at once
+because each thread must acquire the GIL before executing code.  Parallel
+computation can be achieved by using the `multiprocessing` library, but
+subprocesses have more overhead than threads and do not benefit from shared
+memory.
 
-Both of these performance limitations can be bypassed by writing C code.  C is a compiled language, and is well-known to be highly optimized and fast to execute.  In addition, by using an external C library the GIL can be bypassed to allow for true parallel multithreading.  The CEM solver will be running many CPU-intensive routines and can benefit from parallelism.  Writing C code to execute these routines will significantly improve the performance of the solver.
+Both of these performance limitations can be bypassed by writing C code.  C is
+a compiled language, and is well-known to be highly optimized and fast to
+execute.  In addition, by using an external C library the GIL can be bypassed
+to allow for true parallel multithreading.  The CEM solver will be running many
+CPU-intensive routines and can benefit from parallelism.  Writing C code to
+execute these routines will significantly improve the performance of the
+solver.
 
-Functions written in C and compiled as a shared library can be called in Python code as if they were written natively in Python.  One method of doing so is to use the `ctypes` foreign function library.
+Functions written in C and compiled as a shared library can be called in Python
+code as if they were written natively in Python.  One method of doing so is to
+use the `ctypes` foreign function library.
 
 ## Visualizing Simulations
 
-These CEM simulations should result in compelling visualizations.  I wanted a GUI front-end that would allow the user to run the simulation and view the field results.  I initially investigated [Kivy](https://kivy.org/) as a cross-platform framework for this purpose.  But after spending dozens of hours creating a prototype Kivy GUI that could play animations, I discovered PyVista.
+These CEM simulations should result in compelling visualizations.  I wanted a
+GUI front-end that would allow the user to run the simulation and view the
+field results.  I initially investigated [Kivy](https://kivy.org/) as a
+cross-platform framework for this purpose.  But after spending dozens of hours
+creating a prototype Kivy GUI that could play animations, I discovered PyVista.
 
 ### PyVista
 
-[PyVista](https://www.pyvista.org/) is a Python wrapper of the Visualization Toolkit (VTK).  It makes 3D visualization and mesh analysis for scientific and engineering applications possible in Python.  This is exactly the type of visualization tool that grid or mesh-based CEM solvers require!  And, it allows the export of animations as GIF or MP4 files.
+[PyVista](https://www.pyvista.org/) is a Python wrapper of the Visualization
+Toolkit (VTK).  It makes 3D visualization and mesh analysis for scientific and
+engineering applications possible in Python.  This is exactly the type of
+visualization tool that grid or mesh-based CEM solvers require!  And, it allows
+the export of animations as GIF or MP4 files.
 
 ### Dash
 
-PyVista also allows the user to rotate, zoom, and otherwise manipulate the plotted mesh - but only in a Jupyter notebook.  Interestingly, [Plotly's Dash](https://plotly.com/dash/) includes [Dash VTK](https://dash.plotly.com/vtk) for pushing VTK visualizations to the client's browser.  This allows for all of the interactive functionality that would normally only be available in a Jupyter notebook.  In addition to that, Dash web apps are quick to create and come with built-in components for user interaction and displaying plots.  It also has [Bootstrap components](https://dash-bootstrap-components.opensource.faculty.ai/) for quickly producing visually-appealing layouts.  On top of all of that, every operating system can run a browser - which makes cross-compatibility moot.  Once I realized all of this I tossed my Kivy code in the garbage and started over with Dash and PyVista.
+PyVista also allows the user to rotate, zoom, and otherwise manipulate the
+plotted mesh - but only in a Jupyter notebook.  Interestingly,
+[Plotly's Dash](https://plotly.com/dash/) includes
+[Dash VTK](https://dash.plotly.com/vtk) for pushing VTK visualizations to the
+client's browser.  This allows for all of the interactive functionality that
+would normally only be available in a Jupyter notebook.  In addition to that,
+Dash web apps are quick to create and come with built-in components for user
+interaction and displaying plots.  It also has [Bootstrap components](
+  https://dash-bootstrap-components.opensource.faculty.ai/) for quickly
+producing visually-appealing layouts.  On top of all of that, every operating
+system can run a browser - which makes cross-compatibility moot.  Once I
+realized all of this I tossed my Kivy code in the garbage and started over with
+Dash and PyVista.
 
 ## CEM Codes
 
+### FDA
+
+I used Finite Difference Analysis (FDA) to perform quasistatic simulations of
+2D transmission line cross-sections.  This simulation allows me to extract the
+single-ended and differential impedance of many common transmission lines.
+I also compare the results of the FDA simulation with analytical formulas for
+impedance.  I referred to lectures presented by Raymond C. Rumpf from
+[EMPossible](https://empossible.net/) to write the FDA solver.
+
 ### FDTD
 
-Finite Difference Time Domain (FDTD) is considered the easiest CEM code to get started with.  I heavily relied on Professor John B. Schneider's e-book [Understanding the FDTD Method](https://eecs.wsu.edu/~schneidj/ufdtd/).  I used his [source code](https://github.com/john-b-schneider/uFDTD) as a starting point for my FDTD solver, which is permitted per the Creative Commons Attribution-ShareAlike 4.0 International license.
+Finite Difference Time Domain (FDTD) is considered the easiest CEM code to get
+started with.  I heavily relied on Professor John B. Schneider's e-book
+[Understanding the FDTD Method](https://eecs.wsu.edu/~schneidj/ufdtd/).  I used
+his [source code](https://github.com/john-b-schneider/uFDTD) as a starting
+point for my FDTD solver, which is permitted per the Creative Commons
+Attribution-ShareAlike 4.0 International license.
 
 ### MoM
 
@@ -107,3 +182,15 @@ WIP.
   * <https://stackoverflow.com/questions/54633657/how-to-install-pip-for-python-3-7-on-ubuntu-18>
   * <https://github.com/pypa/get-pip/issues/124>
   * <https://itsmycode.com/importerror-libgl-so-1-cannot-open-shared-object-file-no-such-file-or-directory/>
+
+* FDA
+  * <https://empossible.net/academics/emp4301_5302/>
+  * <https://empossible.net/academics/emp4301_5301/>
+  * <https://empossible.net/wp-content/uploads/2020/09/Lecture-Formulation-of-TL-Analysis.pdf>
+  * <https://empossible.net/wp-content/uploads/2020/06/Lecture-Numerical-Analysis-of-Transmission-Lines.pdf>
+  * <https://empossible.net/wp-content/uploads/2020/06/Lecture-Using-TLCALC.pdf>
+  * <https://empossible.net/wp-content/uploads/2018/03/Topic-4-Numerical-Analysis-of-Transmission-Lines.pdf>
+  * <https://www.youtube.com/watch?v=FS5h_L-3WlI&list=PLLYQF5WvJdJVsGsjkVBz6Odf9aJxbd2Hv>
+  * <https://www.youtube.com/watch?v=KWH4UHaB0_4&list=PLLYQF5WvJdJVQsPyJsIb2-XND9u-BYweQ&index=63>
+  * <https://www.youtube.com/watch?v=YtPFj3OvMy8&list=PLLYQF5WvJdJVQsPyJsIb2-XND9u-BYweQ&index=63>
+  * <https://www.youtube.com/watch?v=3k9NYhP_Yyo&list=PLLYQF5WvJdJVQsPyJsIb2-XND9u-BYweQ&index=62>
