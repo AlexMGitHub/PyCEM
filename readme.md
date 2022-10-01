@@ -59,6 +59,8 @@ PyCEM in development mode use the following command:
 docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d
 ```
 
+The PyCEM web app can then be accessed at <http://127.0.0.1:8050/>
+
 ## Motivation for writing a C Library
 
 Python has two major performance limitations: one, it is an interpreted

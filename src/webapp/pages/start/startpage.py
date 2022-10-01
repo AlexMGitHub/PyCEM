@@ -7,6 +7,7 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 # Local application/library specific imports
+from pycem.fda_scenarios import fda_scenario_list
 from pycem.fdtd_scenarios import fdtd_scenario_list
 from webapp.pages.styling import content_style, sidebar_div_style, \
     sidebar_style, paragraph_style
@@ -45,6 +46,30 @@ fdtd_list_group = dbc.ListGroup(
 
 fdtd_list_group.children[1:1] = fdtd_2d_scenarios  # Insert scenarios in list
 
+
+# FDA navbar content
+fda_tl_header = html.Div(
+    html.P(
+        "TLine Simulations", style=paragraph_style
+    ), style=sidebar_div_style
+)
+
+fda_tl_scenarios = [
+    dbc.NavLink(
+        scenario.title, href=scenario.href,
+        active="exact",
+        id=scenario.title[1:],
+    ) for scenario in fda_scenario_list]
+
+fda_list_group = dbc.ListGroup(
+    [
+        fda_tl_header
+    ]
+)
+
+fda_list_group.children[1:1] = fda_tl_scenarios  # Insert scenarios in list
+
+
 # Sidebar content
 sidebar = html.Div(
     [
@@ -58,10 +83,14 @@ sidebar = html.Div(
                 dbc.DropdownMenu(
                     children=[
                         dbc.DropdownMenuItem(
+                            "FDA", id='fda-solver', n_clicks=0,
+                            href='/fda'),
+                        dbc.DropdownMenuItem(
                             "FDTD", id='fdtd-solver', n_clicks=0,
                             href='/fdtd'),
                         dbc.DropdownMenuItem(
-                            "MoM", id='mom-solver', n_clicks=0),
+                            "MoM", id='mom-solver', n_clicks=0,
+                            href='/mom'),
                         dbc.DropdownMenuItem(
                             "FEM", id='fem-solver', n_clicks=0),
                     ],

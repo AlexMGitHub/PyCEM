@@ -1,4 +1,4 @@
-"""Generate cards depicting FDTD scenarios available for simulation."""
+"""Generate cards depicting FDA scenarios available for simulation."""
 # %% Imports
 # Standard system imports
 
@@ -7,16 +7,17 @@ from dash import get_asset_url, html
 import dash_bootstrap_components as dbc
 
 # Local application/library specific imports
-from pycem.fdtd_scenarios import fdtd_scenario_list
+from pycem.fda_scenarios import fda_scenario_list
 from webapp.pages.styling import content_style
 
 
-# %% Generate cards depicting FDTD scenarios
+# %% Generate cards depicting FDA scenarios
 cards = [
     dbc.Card(
         [
-            dbc.CardImg(src=get_asset_url(f'img/fdtd/{scenario.name}.png'),
-                        top=True),
+            dbc.CardImg(src=get_asset_url(
+                f'img/fda/cards/{scenario.name}.png'),
+                top=True),
             dbc.CardBody(
                 [
                     html.H4(scenario.title, className="card-title"),
@@ -29,7 +30,7 @@ cards = [
                 ], className="d-flex flex-column"
             ),
         ], color="light", class_name="mx-2 my-2")
-    for scenario in fdtd_scenario_list
+    for scenario in fda_scenario_list
 ]
 
 # Wrap cards into a new card group every four cards, so there are four per row

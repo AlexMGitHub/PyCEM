@@ -9,6 +9,7 @@ from dash.dependencies import Input, Output
 
 # Local application/library specific imports
 from webapp.app import app
+from webapp.pages.fda import fda_cards
 from webapp.pages.fdtd import (
     ricker, tfsf, tfsf_corner_reflector, tfsf_plate, tfsf_disk, tfsf_minefield,
     fdtd_cards)
@@ -44,6 +45,8 @@ def display_page(pathname):
         return fdtd_cards.content, startpage.fdtd_list_group
     elif pathname in fdtd_page_dict:
         return fdtd_page_dict[pathname]
+    elif pathname == '/fda':
+        return fda_cards.content, startpage.fda_list_group
     else:
         return (html.Div(html.P('404'), style=content_style),
                 startpage.fdtd_list_group)

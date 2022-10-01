@@ -254,7 +254,7 @@ class SymmetricStripline(FDAScenario):
         self.ground_mat[-1, :] = 1              # Bottom ground plane
         self.er_mat = self.Er * self.er_mat     # Set dielectric constant
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate transmission line impedance using analytical formula."""
         w = self.trace_w
         Er = self.Er
@@ -292,7 +292,7 @@ class Microstrip(FDAScenario):
     description = """
         This scenario simulates a microstrip transmission line.  The signal
         conductor rests on top of a substrate.  The ground plane is on the
-        bottom of the substrate.
+        bottom of the substrate.  The region above the substrate is air.
         """
 
     def __init__(self, Er=4.4, sub_thk=1e-3, trace_w=1.9e-3, dx=0.1e-3,
@@ -323,7 +323,7 @@ class Microstrip(FDAScenario):
         self.ground_mat[-1, :] = 1               # Bottom ground plane
         self.er_mat[-tr_h:, :] = self.Er         # Define substrate
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate transmission line impedance using analytical formula."""
         w = self.trace_w
         Er = self.Er
@@ -349,8 +349,9 @@ class Coaxial(FDAScenario):
     title = "Coaxial"
     description = """
         This scenario simulates a coaxial transmission line.  The center
-        conductor is encased in Teflon dielectric and surrounded by the outer
-        conductor.  The dimensions are based on an SMA female connector.
+        conductor is encased in a dielectric and surrounded by the outer
+        conductor.  The default dimensions are based on an SMA female
+        connector with a Teflon dielectric.
         """
 
     def __init__(self, Er=2.2, inner_rad=1.3e-3/2, outer_rad=4.6e-3/2,
@@ -393,7 +394,7 @@ class Coaxial(FDAScenario):
         self._define_coax()                 # Create inner and outer conductors
         self.er_mat = er_mat * self.Er      # Teflon dielectric
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate transmission line impedance using analytical formula."""
         Er = self.Er
         D = self.outer_rad  # Factor of 2 for diameter/radius cancels out
@@ -410,7 +411,7 @@ class AsymmetricStripline(FDAScenario):
     title = "Asymmetric Stripline"
     description = """
         This scenario simulates asymmetric stripline.  The signal conductor
-        is closer to one ground plane than the other.
+        is closer to the top ground plane than the bottom ground plane.
         """
 
     def __init__(self, Er=4, sub_thk=0.9e-3, trace_w=0.35e-3,
@@ -444,7 +445,7 @@ class AsymmetricStripline(FDAScenario):
         self.ground_mat[-1, :] = 1              # Bottom ground plane
         self.er_mat = self.Er * self.er_mat     # Set dielectric constant
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate transmission line impedance using analytical formula."""
         Er = self.Er
         w = self.trace_w
@@ -499,9 +500,9 @@ class DifferentialMicrostrip(FDAScenario):
     title = "Differential Microstrip"
     description = """
         This scenario simulates a microstrip differential pair.
-        The differential impedance is calculated by applying a 1V differential
-        voltage to the two conductors.  The common impedance is calculated by
-        applying a common 1V voltage to the two conductors.
+        The differential impedance is calculated by applying +/- 0.5V to the
+        two conductors.  The common impedance is calculated by applying a
+        common 1V voltage to the two conductors.
         """
 
     def __init__(self, Er=4.4, sub_thk=1e-3, trace_w=1.9e-3, spacing=0.2e-3,
@@ -543,7 +544,7 @@ class DifferentialMicrostrip(FDAScenario):
         self.ground_mat[-1, :] = 1                   # Bottom ground plane
         self.er_mat[-tr_h:, :] = self.Er             # Define substrate
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate transmission line impedance using analytical formula."""
         er_eff, er_effo, er_effe, z0_surf, q4, q10 = self._calc_quantities()
         z0_odd = z0_surf * (er_eff / er_effo)**0.5 / \
@@ -618,8 +619,9 @@ class DifferentialStripline(FDAScenario):
     title = "Differential Stripline"
     description = """
         This scenario simulates edge-coupled differential stripline.
-        A +0.5V voltage is applied to the top stripline, and a -0.5V voltage is
-        applied to the bottom stripline.
+        The differential impedance is calculated by applying +/- 0.5V to the
+        two conductors.  The common impedance is calculated by applying a
+        common 1V voltage to the two conductors.
         """
 
     def __init__(self, Er=4, sub_thk=0.9e-3, trace_w=0.35e-3, spacing=0.2e-3,
@@ -663,7 +665,7 @@ class DifferentialStripline(FDAScenario):
         self.ground_mat[-1, :] = 1              # Bottom ground plane
         self.er_mat = self.Er * self.er_mat     # Set dielectric constant
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Return impedances of finite thickness edge-coupled stripline."""
         t = self.dy
         b = self.sub_thk
@@ -795,7 +797,7 @@ class BroadsideStripline(FDAScenario):
         self.ground_mat[-1, :] = 1              # Bottom ground plane
         self.er_mat = self.Er * self.er_mat     # Set dielectric constant
 
-    def _calculate_z0(self):
+    def analytical_soln(self):
         """Calculate quantities used in broadside stripline.
 
         Bhartia, P., & Pramanick, P. (1988). Computer-aided design models for
@@ -833,3 +835,8 @@ class BroadsideStripline(FDAScenario):
         elif w/s >= 0.5:
             delta_z0_a = P*Q
         return z0_a, delta_z0_a
+
+
+fda_scenario_list = (SymmetricStripline, Microstrip, Coaxial,
+                     AsymmetricStripline, DifferentialMicrostrip,
+                     BroadsideStripline, DifferentialStripline)
