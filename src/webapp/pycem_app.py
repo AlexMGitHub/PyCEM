@@ -1,7 +1,6 @@
 """Web app user interface to PyCEM simulations."""
 # %% Imports
 # Standard system imports
-import os
 
 # Related third party imports
 from dash import html, dcc
@@ -9,7 +8,9 @@ from dash.dependencies import Input, Output
 
 # Local application/library specific imports
 from webapp.app import app
-from webapp.pages.fda import fda_cards
+from webapp.pages.fda import (
+    fda_cards, symmetric_stripline, microstrip, coaxial, asymmetric_stripline,
+    differential_microstrip, broadside_stripline, differential_stripline)
 from webapp.pages.fdtd import (
     ricker, tfsf, tfsf_corner_reflector, tfsf_plate, tfsf_disk, tfsf_minefield,
     fdtd_cards)
@@ -33,6 +34,14 @@ fdtd_page_dict = {page.scenario.href: (page.content, startpage.fdtd_list_group)
                   for page in fdtd_page_list}
 
 
+# %% Generate dict of FDA Scenario URLs to page content
+fda_page_list = (symmetric_stripline, microstrip, coaxial,
+                 asymmetric_stripline, differential_microstrip,
+                 broadside_stripline, differential_stripline)
+fda_page_dict = {page.scenario.href: (page.content, startpage.fda_list_group)
+                 for page in fda_page_list}
+
+
 # %% App URLs
 @app.callback(Output('page-content', 'children'),
               Output('list-group', 'children'),
@@ -47,6 +56,8 @@ def display_page(pathname):
         return fdtd_page_dict[pathname]
     elif pathname == '/fda':
         return fda_cards.content, startpage.fda_list_group
+    elif pathname in fda_page_dict:
+        return fda_page_dict[pathname]
     else:
         return (html.Div(html.P('404'), style=content_style),
                 startpage.fdtd_list_group)

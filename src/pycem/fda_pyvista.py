@@ -11,6 +11,7 @@ import pyvista as pv
 
 # %% Globals
 fda_theme = pv.themes.DefaultTheme()
+fda_theme.colorbar_horizontal.position_y = 0.2
 
 
 # %% PyVista Plotting Functions

@@ -39,6 +39,19 @@ class FDAScenario:
         self.inductance = None
         self.Ex_mat = None
         self.Ey_mat = None
+        self.set_progress = None
+        self.counter = 0
+        self.max_val = 0
+
+    def _update_progress(self):
+        """Update Dash progress bar during simulation."""
+        if self.differential:
+            self.max_val = 6
+        else:
+            self.max_val = 3
+        if self.set_progress:
+            self.counter += 1
+            self.set_progress((str(self.counter), str(self.max_val)))
 
     @staticmethod
     @njit(cache=True)
@@ -58,8 +71,10 @@ class FDAScenario:
                     Ex_mat[i, j] = -(v_mat[i, j+1]-v_mat[i, j])/dx
         return Ex_mat, Ey_mat
 
-    def run_sim(self, filepath=None):
+    def run_sim(self, filepath=None, set_progress=None):
         """Run single-ended or differential simulation."""
+        if set_progress:
+            self.set_progress = set_progress
         if self.differential:
             # Calculate differential impedance
             diff_C, diff_L, diff_z0 = self._run_sim()
@@ -88,6 +103,7 @@ class FDAScenario:
         """
         self._draw_geometry()           # Draw geometry to be simulated
         self._construct_matrices()      # Construct matrices for FDA
+        self._update_progress()
         Nx = self.Nx
         Ny = self.Ny
         dx = self.dx
@@ -96,6 +112,7 @@ class FDAScenario:
         Ex_mat = np.zeros((Ny, Nx))     # Electric field in X-direction
         Ey_mat = np.zeros((Ny, Nx))     # Electric field in Y-direction
         FDAScenario._calculate_e_field(Nx, Ny, dx, dy, Ex_mat, Ey_mat, v_mat)
+        self._update_progress()
         self.Ex_mat = Ex_mat
         self.Ey_mat = Ey_mat
         Dx_mat = Ex_mat * self.er_mat   # Displacement field in X-direction
@@ -207,6 +224,7 @@ class FDAScenario:
                           self.Nx, self.Ny, self.dx, self.dy,
                           fp / f'{prefix}conductors.png', clim=[-1, 1],
                           cmap='seismic')
+        self._update_progress()
 
     def _draw_geometry(self):
         """Override this placehold method in child class."""
