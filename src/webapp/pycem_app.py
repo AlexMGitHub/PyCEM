@@ -1,6 +1,7 @@
 """Web app user interface to PyCEM simulations."""
 # %% Imports
 # Standard system imports
+import os
 
 # Related third party imports
 from dash import html, dcc
